@@ -1,13 +1,13 @@
 {
   "name": "awardspring/awardspring",
-  "version": "0.0.34",
+  "version": "0.1.0",
   "description": "Awardspring PHP Library",
   "keywords": [
     "awardspring",
     "api",
     "sdk"
   ],
-  "license": [],
+  "license": "MIT",
   "require": {
     "php": "^8.1",
     "ext-json": "*",
