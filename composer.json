@@ -1,7 +1,7 @@
 {
   "name": "awardspring/awardspring",
-  "version": "0.1.0",
-  "description": "Awardspring PHP Library",
+  "version": "0.1.1",
+  "description": "Official AwardSpring API client for PHP.",
   "keywords": [
     "awardspring",
     "api",
@@ -42,5 +42,10 @@
     ],
     "test": "phpunit",
     "analyze": "phpstan analyze src tests --memory-limit=1G"
-  }
+  },
+  "authors": [
+    {
+      "name": "AwardSpring"
+    }
+  ]
 }
