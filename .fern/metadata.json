@@ -3,7 +3,7 @@
   "generatorName": "fernapi/fern-php-sdk",
   "generatorVersion": "2.18.1",
   "generatorConfig": {
-    "packageName": "awardspring/awardspring",
+    "packageName": "awardspring/awardspring-php",
     "composerJson": {
       "license": "MIT",
       "description": "Official AwardSpring API client for PHP.",
@@ -14,9 +14,9 @@
       ]
     }
   },
-  "originGitCommit": "c294c78f6f67d0f1b5d7875b9dc459faea290c39",
+  "originGitCommit": "29021ae9670d42d439ea4c6a8811ce4bdd0d452e",
   "originGitCommitIsDirty": false,
   "invokedBy": "ci",
   "ciProvider": "azure-pipelines",
-  "sdkVersion": "0.1.1"
+  "sdkVersion": "0.1.2"
 }

@@ -1,7 +1,7 @@
 # Awardspring PHP Library
 
 [![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2FAwardSpring%2Fawardspring-php)
-[![php shield](https://img.shields.io/badge/php-packagist-pink)](https://packagist.org/packages/awardspring/awardspring)
+[![php shield](https://img.shields.io/badge/php-packagist-pink)](https://packagist.org/packages/awardspring/awardspring-php)
 
 The Awardspring PHP library provides convenient access to the Awardspring APIs from PHP.
 
@@ -25,7 +25,7 @@ This SDK requires PHP ^8.1.
 ## Installation
 
 ```sh
-composer require awardspring/awardspring
+composer require awardspring/awardspring-php
 ```
 
 ## Usage

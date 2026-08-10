@@ -1,6 +1,6 @@
 {
-  "name": "awardspring/awardspring",
-  "version": "0.1.1",
+  "name": "awardspring/awardspring-php",
+  "version": "0.1.2",
   "description": "Official AwardSpring API client for PHP.",
   "keywords": [
     "awardspring",
