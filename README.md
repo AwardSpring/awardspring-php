@@ -54,6 +54,300 @@ $client->donors->list(
 
 ```
 
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->donors->get(
+    1,
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\DonorActivities\Requests\ListDonorActivitiesRequest;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->donorActivities->list(
+    1,
+    new ListDonorActivitiesRequest([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\DonorActivities\Requests\GetDonorActivitiesRequest;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->donorActivities->get(
+    1,
+    1,
+    new GetDonorActivitiesRequest([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\Gifts\Requests\ListGiftsRequest;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->gifts->list(
+    new ListGiftsRequest([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\Scholarships\Requests\ListScholarshipsRequest;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->scholarships->list(
+    new ListScholarshipsRequest([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\Scholarships\Requests\ListAvailableDollarsScholarshipsRequest;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->scholarships->listAvailableDollars(
+    new ListAvailableDollarsScholarshipsRequest([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\Scholarships\Requests\GetAvailableDollarsScholarshipsRequest;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->scholarships->getAvailableDollars(
+    1,
+    new GetAvailableDollarsScholarshipsRequest([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\Scholarships\Requests\ListAwardedStudentsScholarshipsRequest;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->scholarships->listAwardedStudents(
+    new ListAwardedStudentsScholarshipsRequest([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\Funds\Requests\ListFundsRequest;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->funds->list(
+    new ListFundsRequest([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\AwardCycles\Requests\ListAwardCyclesRequest;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->awardCycles->list(
+    new ListAwardCyclesRequest([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->awardCycles->getCurrent();
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\Donors\Requests\CreateDonorV1Request;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->donors->create(
+    new CreateDonorV1Request([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\Donors\Requests\UpdateDonorV1Request;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->donors->update(
+    1,
+    new UpdateDonorV1Request([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\Donors\Requests\UpdateDonorNotesV1Request;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->donors->updateNotes(
+    1,
+    new UpdateDonorNotesV1Request([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\DonorActivities\Requests\CreateDonorActivityV1Request;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->donorActivities->create(
+    1,
+    new CreateDonorActivityV1Request([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\Gifts\Requests\CreateGiftV1Request;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->gifts->create(
+    new CreateGiftV1Request([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\Scholarships\Requests\CreateScholarshipV1Request;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->scholarships->create(
+    new CreateScholarshipV1Request([
+        'awardCycleId' => 1,
+    ]),
+);
+
+```
+
 ## Environments
 
 This SDK allows you to configure different environments for API requests.
