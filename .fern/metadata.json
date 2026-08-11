@@ -4,6 +4,7 @@
   "generatorVersion": "2.18.1",
   "generatorConfig": {
     "packageName": "awardspring/awardspring-php",
+    "clientName": "AwardspringApiClient",
     "composerJson": {
       "license": "MIT",
       "description": "Official AwardSpring API client for PHP.",
@@ -14,9 +15,9 @@
       ]
     }
   },
-  "originGitCommit": "ce83a207a4f53194ee24d9fd30605904fb2ce736",
+  "originGitCommit": "ed7245dacabec1cb9b1542bd418a0400c4823d04",
   "originGitCommitIsDirty": false,
   "invokedBy": "ci",
   "ciProvider": "azure-pipelines",
-  "sdkVersion": "0.1.3"
+  "sdkVersion": "0.1.4"
 }

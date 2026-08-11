@@ -11,7 +11,7 @@ use Awardspring\Scholarships\ScholarshipsClient;
 use Psr\Http\Client\ClientInterface;
 use Awardspring\Core\Client\RawClient;
 
-class AwardspringClient
+class AwardspringApiClient
 {
     /**
      * @var AwardCyclesClient $awardCycles
@@ -77,8 +77,8 @@ class AwardspringClient
             'X-Spring-API-Key' => $apiKey,
             'X-Fern-Language' => 'PHP',
             'X-Fern-SDK-Name' => 'Awardspring',
-            'X-Fern-SDK-Version' => '0.1.3',
-            'User-Agent' => 'awardspring/awardspring-php/0.1.3',
+            'X-Fern-SDK-Version' => '0.1.4',
+            'User-Agent' => 'awardspring/awardspring-php/0.1.4',
         ];
 
         $this->options = $options ?? [];

@@ -7,6 +7,7 @@ The Awardspring PHP library provides convenient access to the Awardspring APIs f
 
 ## Table of Contents
 
+- [Documentation](#documentation)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -17,6 +18,10 @@ The Awardspring PHP library provides convenient access to the Awardspring APIs f
   - [Retries](#retries)
   - [Timeouts](#timeouts)
 - [Contributing](#contributing)
+
+## Documentation
+
+API reference documentation is available [here](https://docs.awardspring.com).
 
 ## Requirements
 
@@ -37,15 +42,14 @@ Instantiate and use the client with the following:
 
 namespace Example;
 
-use Awardspring\AwardspringClient;
-use Awardspring\DonorActivities\Requests\CreateDonorActivityV1Request;
+use Awardspring\AwardspringApiClient;
+use Awardspring\Donors\Requests\ListDonorsRequest;
 
-$client = new AwardspringClient(
+$client = new AwardspringApiClient(
     apiKey: '<value>',
 );
-$client->donorActivities->create(
-    1,
-    new CreateDonorActivityV1Request([]),
+$client->donors->list(
+    new ListDonorsRequest([]),
 );
 
 ```
@@ -58,10 +62,10 @@ This SDK allows you to configure different environments for API requests.
 The SDK defaults to the `UnitedStates` environment. To use a different environment, pass it to the client constructor:
 
 ```php
-use Awardspring\AwardspringClient;
+use Awardspring\AwardspringApiClient;
 use Awardspring\Environments;
 
-$client = new AwardspringClient(
+$client = new AwardspringApiClient(
     token: '<YOUR_TOKEN>',
     options: [
         'baseUrl' => Environments::Staging->value
@@ -83,7 +87,7 @@ use Awardspring\Exceptions\AwardspringApiException;
 use Awardspring\Exceptions\AwardspringException;
 
 try {
-    $response = $client->donorActivities->create(...);
+    $response = $client->donors->list(...);
 } catch (AwardspringApiException $e) {
     echo 'API Exception occurred: ' . $e->getMessage() . "\n";
     echo 'Status Code: ' . $e->getCode() . "\n";
@@ -101,7 +105,7 @@ By default, if no client is provided, the SDK will use `php-http/discovery` to f
 However, you can pass your own client that adheres to `ClientInterface`:
 
 ```php
-use Awardspring\AwardspringClient;
+use Awardspring\AwardspringApiClient;
 
 // Pass any PSR-18 compatible HTTP client implementation.
 // For example, using Guzzle:
@@ -109,7 +113,7 @@ $customClient = new \GuzzleHttp\Client([
     'timeout' => 5.0,
 ]);
 
-$client = new AwardspringClient(options: [
+$client = new AwardspringApiClient(options: [
     'client' => $customClient
 ]);
 
@@ -117,7 +121,7 @@ $client = new AwardspringClient(options: [
 // $customClient = (new \Symfony\Component\HttpClient\Psr18Client())
 //     ->withOptions(['timeout' => 5.0]);
 //
-// $client = new AwardspringClient(options: [
+// $client = new AwardspringApiClient(options: [
 //     'client' => $customClient
 // ]);
 ```
@@ -142,7 +146,7 @@ The `retryStatusCodes` configuration controls which [5XX](https://developer.mozi
 Use the `maxRetries` request option to configure this behavior.
 
 ```php
-$response = $client->donorActivities->create(
+$response = $client->donors->list(
     ...,
     options: [
         'maxRetries' => 0 // Override maxRetries at the request level
@@ -155,7 +159,7 @@ $response = $client->donorActivities->create(
 The SDK defaults to a 30 second timeout. Use the `timeout` option to configure this behavior.
 
 ```php
-$response = $client->donorActivities->create(
+$response = $client->donors->list(
     ...,
     options: [
         'timeout' => 3.0 // Override timeout at the request level
