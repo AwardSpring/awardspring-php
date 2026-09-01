@@ -4,8 +4,6 @@ namespace Awardspring\Types;
 
 use Awardspring\Core\Json\JsonSerializableType;
 use Awardspring\Core\Json\JsonProperty;
-use DateTime;
-use Awardspring\Core\Types\Date;
 
 class DonorQuickStatsV1 extends JsonSerializableType
 {
@@ -49,10 +47,10 @@ class DonorQuickStatsV1 extends JsonSerializableType
     public ?float $lastGift;
 
     /**
-     * @var ?DateTime $lastGiftDate
+     * @var ?int $lastGiftDate
      */
-    #[JsonProperty('last_gift_date'), Date(Date::TYPE_DATETIME)]
-    public ?DateTime $lastGiftDate;
+    #[JsonProperty('last_gift_date')]
+    public ?int $lastGiftDate;
 
     /**
      * @var ?bool $includeSoftCredits
@@ -68,7 +66,7 @@ class DonorQuickStatsV1 extends JsonSerializableType
      *   yearTotal?: ?float,
      *   yearGiftCount?: ?int,
      *   lastGift?: ?float,
-     *   lastGiftDate?: ?DateTime,
+     *   lastGiftDate?: ?int,
      *   includeSoftCredits?: ?bool,
      * } $values
      */

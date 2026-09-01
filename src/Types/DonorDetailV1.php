@@ -4,8 +4,6 @@ namespace Awardspring\Types;
 
 use Awardspring\Core\Json\JsonSerializableType;
 use Awardspring\Core\Json\JsonProperty;
-use DateTime;
-use Awardspring\Core\Types\Date;
 
 class DonorDetailV1 extends JsonSerializableType
 {
@@ -64,10 +62,10 @@ class DonorDetailV1 extends JsonSerializableType
     public ?string $role;
 
     /**
-     * @var ?DateTime $dateOfBirth
+     * @var ?int $dateOfBirth
      */
-    #[JsonProperty('date_of_birth'), Date(Date::TYPE_DATETIME)]
-    public ?DateTime $dateOfBirth;
+    #[JsonProperty('date_of_birth')]
+    public ?int $dateOfBirth;
 
     /**
      * @var ?string $birthMonth
@@ -241,7 +239,7 @@ class DonorDetailV1 extends JsonSerializableType
      *   email?: ?string,
      *   phone?: ?string,
      *   role?: ?value-of<DonorDetailV1Role>,
-     *   dateOfBirth?: ?DateTime,
+     *   dateOfBirth?: ?int,
      *   birthMonth?: ?string,
      *   birthDay?: ?int,
      *   birthYear?: ?int,

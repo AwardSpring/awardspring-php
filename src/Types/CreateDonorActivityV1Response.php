@@ -4,8 +4,6 @@ namespace Awardspring\Types;
 
 use Awardspring\Core\Json\JsonSerializableType;
 use Awardspring\Core\Json\JsonProperty;
-use DateTime;
-use Awardspring\Core\Types\Date;
 
 /**
  * The activity that was created, returned by `POST /api/v1/donors/{donorId}/activities`.
@@ -50,10 +48,10 @@ class CreateDonorActivityV1Response extends JsonSerializableType
     public ?string $description;
 
     /**
-     * @var ?DateTime $date The activity date (UTC epoch seconds on the wire).
+     * @var ?int $date The activity date (UTC epoch seconds on the wire).
      */
-    #[JsonProperty('date'), Date(Date::TYPE_DATETIME)]
-    public ?DateTime $date;
+    #[JsonProperty('date')]
+    public ?int $date;
 
     /**
      * @var ?float $amount Pledge amount, or `null` for non-monetary activity types.
@@ -92,7 +90,7 @@ class CreateDonorActivityV1Response extends JsonSerializableType
      *   activityType?: ?string,
      *   subject?: ?string,
      *   description?: ?string,
-     *   date?: ?DateTime,
+     *   date?: ?int,
      *   amount?: ?float,
      *   fundId?: ?string,
      *   campaignId?: ?int,

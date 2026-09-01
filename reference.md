@@ -441,7 +441,7 @@ $client->donorActivities->get(
 <dl>
 <dd>
 
-**$source:** `?int` 
+**$source:** `?string` 
     
 </dd>
 </dl>
@@ -1930,7 +1930,9 @@ Optional internal notes for admin staff. Not shown to applicants. Example:
 
 ```php
 $client->scholarships->listAvailableDollars(
-    new ListAvailableDollarsScholarshipsRequest([]),
+    new ListAvailableDollarsScholarshipsRequest([
+        'awardCycleId' => 1,
+    ]),
 );
 ```
 </dd>
@@ -1946,7 +1948,7 @@ $client->scholarships->listAvailableDollars(
 <dl>
 <dd>
 
-**$awardCycleId:** `?int` 
+**$awardCycleId:** `int` 
     
 </dd>
 </dl>
@@ -1997,7 +1999,9 @@ $client->scholarships->listAvailableDollars(
 ```php
 $client->scholarships->getAvailableDollars(
     1,
-    new GetAvailableDollarsScholarshipsRequest([]),
+    new GetAvailableDollarsScholarshipsRequest([
+        'awardCycleId' => 1,
+    ]),
 );
 ```
 </dd>
@@ -2021,7 +2025,7 @@ $client->scholarships->getAvailableDollars(
 <dl>
 <dd>
 
-**$awardCycleId:** `?int` 
+**$awardCycleId:** `int` 
     
 </dd>
 </dl>
@@ -2047,7 +2051,9 @@ $client->scholarships->getAvailableDollars(
 
 ```php
 $client->scholarships->listAwardedStudents(
-    new ListAwardedStudentsScholarshipsRequest([]),
+    new ListAwardedStudentsScholarshipsRequest([
+        'awardCycleId' => 1,
+    ]),
 );
 ```
 </dd>
@@ -2063,7 +2069,7 @@ $client->scholarships->listAwardedStudents(
 <dl>
 <dd>
 
-**$awardCycleId:** `?int` 
+**$awardCycleId:** `int` 
     
 </dd>
 </dl>

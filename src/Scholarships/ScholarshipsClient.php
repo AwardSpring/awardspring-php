@@ -217,7 +217,9 @@ class ScholarshipsClient
      * Example:
      * ```php
      * $client->scholarships->listAvailableDollars(
-     *     new ListAvailableDollarsScholarshipsRequest([]),
+     *     new ListAvailableDollarsScholarshipsRequest([
+     *         'awardCycleId' => 1,
+     *     ]),
      * );
      * ```
      *
@@ -234,13 +236,11 @@ class ScholarshipsClient
      * @throws AwardspringException
      * @throws AwardspringApiException
      */
-    public function listAvailableDollars(ListAvailableDollarsScholarshipsRequest $request = new ListAvailableDollarsScholarshipsRequest(), ?array $options = null): ?ScholarshipAvailableDollarsV1ListResponse
+    public function listAvailableDollars(ListAvailableDollarsScholarshipsRequest $request, ?array $options = null): ?ScholarshipAvailableDollarsV1ListResponse
     {
         $options = array_merge($this->options, $options ?? []);
         $query = [];
-        if ($request->awardCycleId != null) {
-            $query['award_cycle_id'] = $request->awardCycleId;
-        }
+        $query['award_cycle_id'] = $request->awardCycleId;
         if ($request->limit != null) {
             $query['limit'] = $request->limit;
         }
@@ -285,7 +285,9 @@ class ScholarshipsClient
      * ```php
      * $client->scholarships->getAvailableDollars(
      *     1,
-     *     new GetAvailableDollarsScholarshipsRequest([]),
+     *     new GetAvailableDollarsScholarshipsRequest([
+     *         'awardCycleId' => 1,
+     *     ]),
      * );
      * ```
      *
@@ -303,13 +305,11 @@ class ScholarshipsClient
      * @throws AwardspringException
      * @throws AwardspringApiException
      */
-    public function getAvailableDollars(int $scholarshipId, GetAvailableDollarsScholarshipsRequest $request = new GetAvailableDollarsScholarshipsRequest(), ?array $options = null): ?ScholarshipAvailableDollarsV1
+    public function getAvailableDollars(int $scholarshipId, GetAvailableDollarsScholarshipsRequest $request, ?array $options = null): ?ScholarshipAvailableDollarsV1
     {
         $options = array_merge($this->options, $options ?? []);
         $query = [];
-        if ($request->awardCycleId != null) {
-            $query['award_cycle_id'] = $request->awardCycleId;
-        }
+        $query['award_cycle_id'] = $request->awardCycleId;
         try {
             $response = $this->client->sendRequest(
                 new JsonApiRequest(
@@ -344,7 +344,9 @@ class ScholarshipsClient
      * Example:
      * ```php
      * $client->scholarships->listAwardedStudents(
-     *     new ListAwardedStudentsScholarshipsRequest([]),
+     *     new ListAwardedStudentsScholarshipsRequest([
+     *         'awardCycleId' => 1,
+     *     ]),
      * );
      * ```
      *
@@ -361,13 +363,11 @@ class ScholarshipsClient
      * @throws AwardspringException
      * @throws AwardspringApiException
      */
-    public function listAwardedStudents(ListAwardedStudentsScholarshipsRequest $request = new ListAwardedStudentsScholarshipsRequest(), ?array $options = null): ?AwardedStudentV1ListResponse
+    public function listAwardedStudents(ListAwardedStudentsScholarshipsRequest $request, ?array $options = null): ?AwardedStudentV1ListResponse
     {
         $options = array_merge($this->options, $options ?? []);
         $query = [];
-        if ($request->awardCycleId != null) {
-            $query['award_cycle_id'] = $request->awardCycleId;
-        }
+        $query['award_cycle_id'] = $request->awardCycleId;
         if ($request->scholarshipId != null) {
             $query['scholarship_id'] = $request->scholarshipId;
         }

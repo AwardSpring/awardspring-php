@@ -4,8 +4,6 @@ namespace Awardspring\Types;
 
 use Awardspring\Core\Json\JsonSerializableType;
 use Awardspring\Core\Json\JsonProperty;
-use DateTime;
-use Awardspring\Core\Types\Date;
 
 /**
  * An award cycle — the institution's scholarship season, for example "2025-2026". Carries
@@ -48,28 +46,28 @@ class AwardCycleV1 extends JsonSerializableType
     public ?bool $isNext;
 
     /**
-     * @var ?DateTime $applicationStartDate When the cycle's application window opens (UTC epoch seconds), or null when unset.
+     * @var ?int $applicationStartDate When the cycle's application window opens (UTC epoch seconds), or null when unset.
      */
-    #[JsonProperty('application_start_date'), Date(Date::TYPE_DATETIME)]
-    public ?DateTime $applicationStartDate;
+    #[JsonProperty('application_start_date')]
+    public ?int $applicationStartDate;
 
     /**
-     * @var ?DateTime $applicationEndDate When the cycle's application window closes (UTC epoch seconds), or null when unset.
+     * @var ?int $applicationEndDate When the cycle's application window closes (UTC epoch seconds), or null when unset.
      */
-    #[JsonProperty('application_end_date'), Date(Date::TYPE_DATETIME)]
-    public ?DateTime $applicationEndDate;
+    #[JsonProperty('application_end_date')]
+    public ?int $applicationEndDate;
 
     /**
-     * @var ?DateTime $reviewStartDate When the cycle's review window opens (UTC epoch seconds), or null when unset.
+     * @var ?int $reviewStartDate When the cycle's review window opens (UTC epoch seconds), or null when unset.
      */
-    #[JsonProperty('review_start_date'), Date(Date::TYPE_DATETIME)]
-    public ?DateTime $reviewStartDate;
+    #[JsonProperty('review_start_date')]
+    public ?int $reviewStartDate;
 
     /**
-     * @var ?DateTime $reviewEndDate When the cycle's review window closes (UTC epoch seconds), or null when unset.
+     * @var ?int $reviewEndDate When the cycle's review window closes (UTC epoch seconds), or null when unset.
      */
-    #[JsonProperty('review_end_date'), Date(Date::TYPE_DATETIME)]
-    public ?DateTime $reviewEndDate;
+    #[JsonProperty('review_end_date')]
+    public ?int $reviewEndDate;
 
     /**
      * @param array{
@@ -78,10 +76,10 @@ class AwardCycleV1 extends JsonSerializableType
      *   name?: ?string,
      *   isCurrent?: ?bool,
      *   isNext?: ?bool,
-     *   applicationStartDate?: ?DateTime,
-     *   applicationEndDate?: ?DateTime,
-     *   reviewStartDate?: ?DateTime,
-     *   reviewEndDate?: ?DateTime,
+     *   applicationStartDate?: ?int,
+     *   applicationEndDate?: ?int,
+     *   reviewStartDate?: ?int,
+     *   reviewEndDate?: ?int,
      * } $values
      */
     public function __construct(

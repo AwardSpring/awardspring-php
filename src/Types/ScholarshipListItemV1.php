@@ -4,8 +4,6 @@ namespace Awardspring\Types;
 
 use Awardspring\Core\Json\JsonSerializableType;
 use Awardspring\Core\Json\JsonProperty;
-use DateTime;
-use Awardspring\Core\Types\Date;
 
 /**
  * A scholarship as it appears in the `GET /api/v1/scholarships` list. Carries
@@ -54,16 +52,16 @@ class ScholarshipListItemV1 extends JsonSerializableType
     public ?int $awardCycleId;
 
     /**
-     * @var ?DateTime $applicationStartDate When the scholarship's application window opens (UTC epoch seconds).
+     * @var ?int $applicationStartDate When the scholarship's application window opens (UTC epoch seconds).
      */
-    #[JsonProperty('application_start_date'), Date(Date::TYPE_DATETIME)]
-    public ?DateTime $applicationStartDate;
+    #[JsonProperty('application_start_date')]
+    public ?int $applicationStartDate;
 
     /**
-     * @var ?DateTime $applicationEndDate When the scholarship's application window closes (UTC epoch seconds).
+     * @var ?int $applicationEndDate When the scholarship's application window closes (UTC epoch seconds).
      */
-    #[JsonProperty('application_end_date'), Date(Date::TYPE_DATETIME)]
-    public ?DateTime $applicationEndDate;
+    #[JsonProperty('application_end_date')]
+    public ?int $applicationEndDate;
 
     /**
      * @param array{
@@ -73,8 +71,8 @@ class ScholarshipListItemV1 extends JsonSerializableType
      *   totalAmount?: ?float,
      *   isActive?: ?bool,
      *   awardCycleId?: ?int,
-     *   applicationStartDate?: ?DateTime,
-     *   applicationEndDate?: ?DateTime,
+     *   applicationStartDate?: ?int,
+     *   applicationEndDate?: ?int,
      * } $values
      */
     public function __construct(

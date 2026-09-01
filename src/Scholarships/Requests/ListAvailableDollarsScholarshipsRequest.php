@@ -7,9 +7,9 @@ use Awardspring\Core\Json\JsonSerializableType;
 class ListAvailableDollarsScholarshipsRequest extends JsonSerializableType
 {
     /**
-     * @var ?int $awardCycleId
+     * @var int $awardCycleId
      */
-    public ?int $awardCycleId;
+    public int $awardCycleId;
 
     /**
      * @var ?int $limit Page size. Defaults to 25. Values outside 1–100 are clamped rather than rejected.
@@ -28,16 +28,16 @@ class ListAvailableDollarsScholarshipsRequest extends JsonSerializableType
 
     /**
      * @param array{
-     *   awardCycleId?: ?int,
+     *   awardCycleId: int,
      *   limit?: ?int,
      *   startingAfter?: ?string,
      *   endingBefore?: ?string,
      * } $values
      */
     public function __construct(
-        array $values = [],
+        array $values,
     ) {
-        $this->awardCycleId = $values['awardCycleId'] ?? null;
+        $this->awardCycleId = $values['awardCycleId'];
         $this->limit = $values['limit'] ?? null;
         $this->startingAfter = $values['startingAfter'] ?? null;
         $this->endingBefore = $values['endingBefore'] ?? null;

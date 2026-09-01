@@ -4,8 +4,6 @@ namespace Awardspring\Types;
 
 use Awardspring\Core\Json\JsonSerializableType;
 use Awardspring\Core\Json\JsonProperty;
-use DateTime;
-use Awardspring\Core\Types\Date;
 
 /**
  * One applicant's award of one scholarship within an award cycle (one flattened row per award).
@@ -70,10 +68,10 @@ class AwardedStudentV1 extends JsonSerializableType
     public ?string $email;
 
     /**
-     * @var ?DateTime $awardedDate
+     * @var ?int $awardedDate
      */
-    #[JsonProperty('awarded_date'), Date(Date::TYPE_DATETIME)]
-    public ?DateTime $awardedDate;
+    #[JsonProperty('awarded_date')]
+    public ?int $awardedDate;
 
     /**
      * @var ?float $awardedAmount
@@ -92,7 +90,7 @@ class AwardedStudentV1 extends JsonSerializableType
      *   firstName?: ?string,
      *   lastName?: ?string,
      *   email?: ?string,
-     *   awardedDate?: ?DateTime,
+     *   awardedDate?: ?int,
      *   awardedAmount?: ?float,
      * } $values
      */

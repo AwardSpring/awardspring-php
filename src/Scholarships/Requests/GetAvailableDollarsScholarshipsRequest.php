@@ -7,18 +7,18 @@ use Awardspring\Core\Json\JsonSerializableType;
 class GetAvailableDollarsScholarshipsRequest extends JsonSerializableType
 {
     /**
-     * @var ?int $awardCycleId
+     * @var int $awardCycleId
      */
-    public ?int $awardCycleId;
+    public int $awardCycleId;
 
     /**
      * @param array{
-     *   awardCycleId?: ?int,
+     *   awardCycleId: int,
      * } $values
      */
     public function __construct(
-        array $values = [],
+        array $values,
     ) {
-        $this->awardCycleId = $values['awardCycleId'] ?? null;
+        $this->awardCycleId = $values['awardCycleId'];
     }
 }

@@ -4,8 +4,6 @@ namespace Awardspring\Types;
 
 use Awardspring\Core\Json\JsonSerializableType;
 use Awardspring\Core\Json\JsonProperty;
-use DateTime;
-use Awardspring\Core\Types\Date;
 
 /**
  * A single item on a donor's merged activity timeline. Fields a given source doesn't populate are
@@ -30,10 +28,10 @@ class DonorActivityV1 extends JsonSerializableType
     public ?int $id;
 
     /**
-     * @var ?int $source
+     * @var ?value-of<DonorActivitySourceV1> $source
      */
     #[JsonProperty('source')]
-    public ?int $source;
+    public ?string $source;
 
     /**
      * @var ?string $activityType Activity type label (e.g. `"LoggedEmail"`, `"Email"`, `"Sms"`, `"Award"`, `"GeneralApplication"`).
@@ -54,10 +52,10 @@ class DonorActivityV1 extends JsonSerializableType
     public ?string $description;
 
     /**
-     * @var ?DateTime $date When the activity occurred, in the tenant's local time zone (UTC epoch seconds on the wire).
+     * @var ?int $date When the activity occurred, in the tenant's local time zone (UTC epoch seconds on the wire).
      */
-    #[JsonProperty('date'), Date(Date::TYPE_DATETIME)]
-    public ?DateTime $date;
+    #[JsonProperty('date')]
+    public ?int $date;
 
     /**
      * @var ?float $amount Monetary amount (logged monetary activities and awards); null otherwise.
@@ -111,11 +109,11 @@ class DonorActivityV1 extends JsonSerializableType
      * @param array{
      *   object?: ?string,
      *   id?: ?int,
-     *   source?: ?int,
+     *   source?: ?value-of<DonorActivitySourceV1>,
      *   activityType?: ?string,
      *   subject?: ?string,
      *   description?: ?string,
-     *   date?: ?DateTime,
+     *   date?: ?int,
      *   amount?: ?float,
      *   fundId?: ?string,
      *   isCompleted?: ?bool,

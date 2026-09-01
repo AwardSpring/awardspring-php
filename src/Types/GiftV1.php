@@ -4,8 +4,6 @@ namespace Awardspring\Types;
 
 use Awardspring\Core\Json\JsonSerializableType;
 use Awardspring\Core\Json\JsonProperty;
-use DateTime;
-use Awardspring\Core\Types\Date;
 use Awardspring\Core\Types\ArrayType;
 
 class GiftV1 extends JsonSerializableType
@@ -86,10 +84,10 @@ class GiftV1 extends JsonSerializableType
     public ?bool $giftAcknowledgementSent;
 
     /**
-     * @var ?DateTime $date
+     * @var ?int $date
      */
-    #[JsonProperty('date'), Date(Date::TYPE_DATETIME)]
-    public ?DateTime $date;
+    #[JsonProperty('date')]
+    public ?int $date;
 
     /**
      * @var ?array<SoftCreditV1> $softCredits
@@ -111,7 +109,7 @@ class GiftV1 extends JsonSerializableType
      *   campaignId?: ?int,
      *   isCompleted?: ?bool,
      *   giftAcknowledgementSent?: ?bool,
-     *   date?: ?DateTime,
+     *   date?: ?int,
      *   softCredits?: ?array<SoftCreditV1>,
      * } $values
      */

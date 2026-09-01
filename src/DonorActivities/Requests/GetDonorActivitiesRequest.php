@@ -3,17 +3,18 @@
 namespace Awardspring\DonorActivities\Requests;
 
 use Awardspring\Core\Json\JsonSerializableType;
+use Awardspring\Types\DonorActivitySourceV1;
 
 class GetDonorActivitiesRequest extends JsonSerializableType
 {
     /**
-     * @var ?int $source
+     * @var ?value-of<DonorActivitySourceV1> $source
      */
-    public ?int $source;
+    public ?string $source;
 
     /**
      * @param array{
-     *   source?: ?int,
+     *   source?: ?value-of<DonorActivitySourceV1>,
      * } $values
      */
     public function __construct(

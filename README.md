@@ -153,7 +153,9 @@ $client = new AwardspringApiClient(
     apiKey: '<value>',
 );
 $client->scholarships->listAvailableDollars(
-    new ListAvailableDollarsScholarshipsRequest([]),
+    new ListAvailableDollarsScholarshipsRequest([
+        'awardCycleId' => 1,
+    ]),
 );
 
 ```
@@ -171,7 +173,9 @@ $client = new AwardspringApiClient(
 );
 $client->scholarships->getAvailableDollars(
     1,
-    new GetAvailableDollarsScholarshipsRequest([]),
+    new GetAvailableDollarsScholarshipsRequest([
+        'awardCycleId' => 1,
+    ]),
 );
 
 ```
@@ -188,7 +192,9 @@ $client = new AwardspringApiClient(
     apiKey: '<value>',
 );
 $client->scholarships->listAwardedStudents(
-    new ListAwardedStudentsScholarshipsRequest([]),
+    new ListAwardedStudentsScholarshipsRequest([
+        'awardCycleId' => 1,
+    ]),
 );
 
 ```
