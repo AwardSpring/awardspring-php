@@ -205,6 +205,73 @@ $client->scholarships->listAwardedStudents(
 namespace Example;
 
 use Awardspring\AwardspringApiClient;
+use Awardspring\Students\Requests\ListStudentsRequest;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->students->list(
+    new ListStudentsRequest([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->students->get(
+    1,
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\Applications\Requests\ListApplicationsRequest;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->applications->list(
+    new ListApplicationsRequest([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\Awards\Requests\ListAwardsRequest;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->awards->list(
+    new ListAwardsRequest([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
 use Awardspring\Funds\Requests\ListFundsRequest;
 
 $client = new AwardspringApiClient(

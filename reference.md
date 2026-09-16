@@ -1,4 +1,90 @@
 # Reference
+## Applications
+<details><summary><code>$client-&gt;applications-&gt;list($request) -> ?ApplicationV1ListResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Returns one page at a time. Each row names the scholarship and award cycle it belongs to,
+and carries a `status` of `applied`, `awarded`, or `denied`. Without
+filters the list covers the whole institution; narrow it with `user_id` (a
+student's `id` from the Students endpoints) to scope to a single student. Returns
+`404 student_not_found` when the `user_id` does not belong to this
+institution.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```php
+$client->applications->list(
+    new ListApplicationsRequest([]),
+);
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**$userId:** `?int` — Optional student scope (`?user_id=`): the student's user record id from the Students endpoints. Omit for a tenant-wide list.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$limit:** `?int` — Page size. Defaults to 25. Values outside 1–100 are clamped rather than rejected.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Award Cycles
 <details><summary><code>$client-&gt;awardCycles-&gt;list($request) -> ?AwardCycleV1ListResponse</code></summary>
 <dl>
@@ -121,6 +207,91 @@ and ask the user which one to use.
 ```php
 $client->awardCycles->getCurrent();
 ```
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Awards
+<details><summary><code>$client-&gt;awards-&gt;list($request) -> ?AwardV1ListResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Returns one page at a time. Each row names the awarded scholarship and its award cycle,
+and carries the awarded amount and decision date. Without filters the list covers the
+whole institution; narrow it with `user_id` (a student's `id` from the
+Students endpoints) to scope to a single student. Returns `404 student_not_found`
+when the `user_id` does not belong to this institution.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```php
+$client->awards->list(
+    new ListAwardsRequest([]),
+);
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**$userId:** `?int` — Optional student scope (`?user_id=`): the student's user record id from the Students endpoints. Omit for a tenant-wide list.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$limit:** `?int` — Page size. Defaults to 25. Values outside 1–100 are clamped rather than rejected.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+    
 </dd>
 </dl>
 </dd>
@@ -2102,6 +2273,159 @@ $client->scholarships->listAwardedStudents(
 <dd>
 
 **$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Students
+<details><summary><code>$client-&gt;students-&gt;list($request) -> ?StudentV1ListResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Returns one page at a time, covering every student account at the institution — both
+registered and prospective. Search with `q`: it splits on spaces and matches each
+term against first name, last name, or email. Filter with `student_id` to look a
+student up by the number the institution assigned; numbers are not guaranteed unique, so
+the match can return more than one student.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```php
+$client->students->list(
+    new ListStudentsRequest([]),
+);
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**$q:** `?string` — Free-text search (`?q=`): splits on spaces and matches each term against first name, last name, or email, case-insensitively.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$studentId:** `?string` 
+
+Institution-assigned student number (`?student_id=`): exact, case-insensitive
+match. Student numbers are not guaranteed unique, so this can return more than one student.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$limit:** `?int` — Page size. Defaults to 25. Values outside 1–100 are clamped rather than rejected.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>$client-&gt;students-&gt;get($id) -> ?StudentV1</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Fetches one student by their AwardSpring identifier — the `id` from the students
+list. Returns `404 student_not_found` if no such student belongs to this institution.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```php
+$client->students->get(
+    1,
+);
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**$id:** `int` 
     
 </dd>
 </dl>

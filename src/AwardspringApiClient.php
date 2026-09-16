@@ -2,21 +2,34 @@
 
 namespace Awardspring;
 
+use Awardspring\Applications\ApplicationsClient;
 use Awardspring\AwardCycles\AwardCyclesClient;
+use Awardspring\Awards\AwardsClient;
 use Awardspring\DonorActivities\DonorActivitiesClient;
 use Awardspring\Donors\DonorsClient;
 use Awardspring\Funds\FundsClient;
 use Awardspring\Gifts\GiftsClient;
 use Awardspring\Scholarships\ScholarshipsClient;
+use Awardspring\Students\StudentsClient;
 use Psr\Http\Client\ClientInterface;
 use Awardspring\Core\Client\RawClient;
 
 class AwardspringApiClient
 {
     /**
+     * @var ApplicationsClient $applications
+     */
+    public ApplicationsClient $applications;
+
+    /**
      * @var AwardCyclesClient $awardCycles
      */
     public AwardCyclesClient $awardCycles;
+
+    /**
+     * @var AwardsClient $awards
+     */
+    public AwardsClient $awards;
 
     /**
      * @var DonorActivitiesClient $donorActivities
@@ -42,6 +55,11 @@ class AwardspringApiClient
      * @var ScholarshipsClient $scholarships
      */
     public ScholarshipsClient $scholarships;
+
+    /**
+     * @var StudentsClient $students
+     */
+    public StudentsClient $students;
 
     /**
      * @var array{
@@ -77,8 +95,8 @@ class AwardspringApiClient
             'X-Spring-API-Key' => $apiKey,
             'X-Fern-Language' => 'PHP',
             'X-Fern-SDK-Name' => 'Awardspring',
-            'X-Fern-SDK-Version' => '0.1.9',
-            'User-Agent' => 'awardspring/awardspring-php/0.1.9',
+            'X-Fern-SDK-Version' => '0.1.10',
+            'User-Agent' => 'awardspring/awardspring-php/0.1.10',
         ];
 
         $this->options = $options ?? [];
@@ -92,11 +110,14 @@ class AwardspringApiClient
             options: $this->options,
         );
 
+        $this->applications = new ApplicationsClient($this->client, $this->options);
         $this->awardCycles = new AwardCyclesClient($this->client, $this->options);
+        $this->awards = new AwardsClient($this->client, $this->options);
         $this->donorActivities = new DonorActivitiesClient($this->client, $this->options);
         $this->donors = new DonorsClient($this->client, $this->options);
         $this->funds = new FundsClient($this->client, $this->options);
         $this->gifts = new GiftsClient($this->client, $this->options);
         $this->scholarships = new ScholarshipsClient($this->client, $this->options);
+        $this->students = new StudentsClient($this->client, $this->options);
     }
 }
