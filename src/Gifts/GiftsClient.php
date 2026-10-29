@@ -54,8 +54,10 @@ class GiftsClient
 
     /**
      * Returns one page at a time, newest first. Without filters the list covers the whole
-     * institution. Narrow it with `donor_id` to scope to a single donor, `type` to
+     * institution. Narrow it with `donor_id` (a donor's stored ID) to scope to a single donor, `type` to
      * return only gifts or only pledges, and `q` to search the subject and description.
+     *
+     * Assistant capability: `springiq_list_gifts`. Required permission: Donors (applies when called on behalf of a signed-in person).
      *
      * Example:
      * ```php
@@ -98,6 +100,9 @@ class GiftsClient
         }
         if ($request->endingBefore != null) {
             $query['ending_before'] = $request->endingBefore;
+        }
+        if ($request->include != null) {
+            $query['include'] = $request->include;
         }
         try {
             $response = $this->client->sendRequest(

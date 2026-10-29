@@ -3,13 +3,14 @@
 namespace Awardspring\Gifts\Requests;
 
 use Awardspring\Core\Json\JsonSerializableType;
+use Awardspring\Gifts\Types\ListGiftsRequestIncludeItem;
 
 class ListGiftsRequest extends JsonSerializableType
 {
     /**
-     * @var ?int $donorId Optional donor scope (`?donor_id=`). Omit for a tenant-wide list.
+     * @var ?string $donorId Optional donor scope (`?donor_id=`): the donor's stored ID. Omit for a tenant-wide list.
      */
-    public ?int $donorId;
+    public ?string $donorId;
 
     /**
      * @var ?string $type Record-type filter (`?type=`): `gift` or `pledge`. Omit for both.
@@ -37,13 +38,19 @@ class ListGiftsRequest extends JsonSerializableType
     public ?string $endingBefore;
 
     /**
+     * @var ?array<value-of<ListGiftsRequestIncludeItem>> $include Optional extras to add to the response, comma-separated. `total_count` is the only supported value: it adds `total_count`, the number of records that match this request across all pages. The count is taken fresh at the moment of each request, so it can change while you page; ask for it on the first page. Without it, `total_count` is left out of the response. Asking or not never invalidates a cursor. Any other value returns `400 validation_failed`.
+     */
+    public ?array $include;
+
+    /**
      * @param array{
-     *   donorId?: ?int,
+     *   donorId?: ?string,
      *   type?: ?string,
      *   q?: ?string,
      *   limit?: ?int,
      *   startingAfter?: ?string,
      *   endingBefore?: ?string,
+     *   include?: ?array<value-of<ListGiftsRequestIncludeItem>>,
      * } $values
      */
     public function __construct(
@@ -55,5 +62,6 @@ class ListGiftsRequest extends JsonSerializableType
         $this->limit = $values['limit'] ?? null;
         $this->startingAfter = $values['startingAfter'] ?? null;
         $this->endingBefore = $values['endingBefore'] ?? null;
+        $this->include = $values['include'] ?? null;
     }
 }

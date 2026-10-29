@@ -20,7 +20,8 @@ use Awardspring\Core\Types\ArrayType;
  * }
  * ````url` echoes the path the collection was served from. To page forward, send
  * `next_cursor` back as `starting_after`; on the last page `has_more` is
- * `false` and `next_cursor` is null.
+ * `false` and `next_cursor` is null. A request with `include=total_count` also
+ * gets `total_count`.
  */
 class ScholarshipAvailableDollarsV1ListResponse extends JsonSerializableType
 {
@@ -55,6 +56,16 @@ class ScholarshipAvailableDollarsV1ListResponse extends JsonSerializableType
     public ?string $previousCursor;
 
     /**
+     * The number of records that match the request across all pages, counted fresh on each
+     * request. Present only when the request includes `include=total_count`; otherwise the
+     * key is omitted.
+     *
+     * @var ?int $totalCount
+     */
+    #[JsonProperty('total_count')]
+    public ?int $totalCount;
+
+    /**
      * @var ?array<ScholarshipAvailableDollarsV1> $data The page of items.
      */
     #[JsonProperty('data'), ArrayType([ScholarshipAvailableDollarsV1::class])]
@@ -67,6 +78,7 @@ class ScholarshipAvailableDollarsV1ListResponse extends JsonSerializableType
      *   hasMore?: ?bool,
      *   nextCursor?: ?string,
      *   previousCursor?: ?string,
+     *   totalCount?: ?int,
      *   data?: ?array<ScholarshipAvailableDollarsV1>,
      * } $values
      */
@@ -78,6 +90,7 @@ class ScholarshipAvailableDollarsV1ListResponse extends JsonSerializableType
         $this->hasMore = $values['hasMore'] ?? null;
         $this->nextCursor = $values['nextCursor'] ?? null;
         $this->previousCursor = $values['previousCursor'] ?? null;
+        $this->totalCount = $values['totalCount'] ?? null;
         $this->data = $values['data'] ?? null;
     }
 

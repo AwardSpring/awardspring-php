@@ -54,8 +54,10 @@ class AwardsClient
      * Returns one page at a time. Each row names the awarded scholarship and its award cycle,
      * and carries the awarded amount and decision date. Without filters the list covers the
      * whole institution; narrow it with `user_id` (a student's `id` from the
-     * Students endpoints) to scope to a single student. Returns `404 student_not_found`
-     * when the `user_id` does not belong to this institution.
+     * Students endpoints) to scope to a single student. Returns `404 student_not_found`,
+     * naming `user_id` in `param`, when the `user_id` is not a student at this institution.
+     *
+     * Assistant capability: `springiq_list_student_awards`. Required permission: Users (applies when called on behalf of a signed-in person).
      *
      * Example:
      * ```php
@@ -92,6 +94,9 @@ class AwardsClient
         }
         if ($request->endingBefore != null) {
             $query['ending_before'] = $request->endingBefore;
+        }
+        if ($request->include != null) {
+            $query['include'] = $request->include;
         }
         try {
             $response = $this->client->sendRequest(

@@ -55,8 +55,10 @@ class ApplicationsClient
      * and carries a `status` of `applied`, `awarded`, or `denied`. Without
      * filters the list covers the whole institution; narrow it with `user_id` (a
      * student's `id` from the Students endpoints) to scope to a single student. Returns
-     * `404 student_not_found` when the `user_id` does not belong to this
-     * institution.
+     * `404 student_not_found`, naming `user_id` in `param`, when the `user_id` is not
+     * a student at this institution.
+     *
+     * Assistant capability: `springiq_list_student_applications`. Required permission: Users (applies when called on behalf of a signed-in person).
      *
      * Example:
      * ```php
@@ -93,6 +95,9 @@ class ApplicationsClient
         }
         if ($request->endingBefore != null) {
             $query['ending_before'] = $request->endingBefore;
+        }
+        if ($request->include != null) {
+            $query['include'] = $request->include;
         }
         try {
             $response = $this->client->sendRequest(

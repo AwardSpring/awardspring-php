@@ -65,22 +65,23 @@ class CreateDonorActivityV1Request extends JsonSerializableType
     public ?string $fundId;
 
     /**
-     * Optional campaign association for pledge activities. Only meaningful when ActivityType
-     * is `LoggedPledge`; ignored for non-monetary activity types. Example: `42`.
+     * Optional stored ID of a campaign at this institution, for pledge activities. Only meaningful when
+     * ActivityType is `LoggedPledge`; ignored for non-monetary activity types.
+     * Example: `"7HQ2KW9XR"`.
      *
-     * @var ?int $campaignId
+     * @var ?string $campaignId
      */
     #[JsonProperty('campaign_id')]
-    public ?int $campaignId;
+    public ?string $campaignId;
 
     /**
-     * Optional AwardSpring user ID of the staff member the activity is assigned to (e.g., the donor manager
-     * who should follow up). Pass `null` or omit when no assignment is intended. Example: `12`.
+     * Optional stored ID of the staff member the activity is assigned to (e.g., the donor manager who should
+     * follow up). Pass `null` or omit when no assignment is intended. Example: `"4MZ8RT2PW"`.
      *
-     * @var ?int $assignedToUserId
+     * @var ?string $assignedToUserId
      */
     #[JsonProperty('assigned_to_user_id')]
-    public ?int $assignedToUserId;
+    public ?string $assignedToUserId;
 
     /**
      * Whether the activity is completed. For non-monetary activity types this is ignored (treated as `false`).
@@ -99,8 +100,8 @@ class CreateDonorActivityV1Request extends JsonSerializableType
      *   description?: ?string,
      *   amount?: ?float,
      *   fundId?: ?string,
-     *   campaignId?: ?int,
-     *   assignedToUserId?: ?int,
+     *   campaignId?: ?string,
+     *   assignedToUserId?: ?string,
      *   isCompleted?: ?bool,
      * } $values
      */

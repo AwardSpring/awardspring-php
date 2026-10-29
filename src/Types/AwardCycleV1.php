@@ -22,10 +22,10 @@ class AwardCycleV1 extends JsonSerializableType
     public ?string $object;
 
     /**
-     * @var ?int $id AwardSpring award-cycle identifier — also the cursor anchor for paging.
+     * @var ?string $id The award cycle's stored ID. Example: `"4MZ8QW2TC"`.
      */
     #[JsonProperty('id')]
-    public ?int $id;
+    public ?string $id;
 
     /**
      * @var ?string $name Award-cycle name as configured by the institution (e.g. "2025-2026").
@@ -72,7 +72,7 @@ class AwardCycleV1 extends JsonSerializableType
     /**
      * @param array{
      *   object?: ?string,
-     *   id?: ?int,
+     *   id?: ?string,
      *   name?: ?string,
      *   isCurrent?: ?bool,
      *   isNext?: ?bool,

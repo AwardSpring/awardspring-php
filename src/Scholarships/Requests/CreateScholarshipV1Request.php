@@ -46,10 +46,10 @@ class CreateScholarshipV1Request extends JsonSerializableType
     public ?bool $isSpecialFunds;
 
     /**
-     * @var int $awardCycleId AwardSpring award-cycle identifier this scholarship belongs to. Required. Example: `12`.
+     * @var ?string $awardCycleId The stored ID of the award cycle this scholarship belongs to. Required. Example: `"4MZ8QW2TC"`.
      */
     #[JsonProperty('award_cycle_id')]
-    public int $awardCycleId;
+    public ?string $awardCycleId;
 
     /**
      * ISO 8601 datetime when applicants can begin applying. Example: `"2026-08-01T00:00:00"`.
@@ -111,7 +111,8 @@ class CreateScholarshipV1Request extends JsonSerializableType
 
     /**
      * Optional number of payments each recipient receives. Must be 1 or greater when supplied.
-     * Example: `2`.
+     * When it is 2 or more, `payment_schedule_ids` must name one payment schedule for each payment
+     * after the first. Example: `2`.
      *
      * @var ?int $paymentsPerAward
      */
@@ -119,21 +120,33 @@ class CreateScholarshipV1Request extends JsonSerializableType
     public ?int $paymentsPerAward;
 
     /**
-     * Optional AwardSpring department ID the scholarship is owned by. Used for Department Admin
-     * scoping. Example: `3`.
+     * The award cycle's payment schedules used for the second and later payments, one per payment after
+     * the first, in date order. Required when `payments_per_award` is 2 or more, and must be left out
+     * otherwise. List them with `GET /api/v1/payment-schedules?award_cycle_id=`; each id must be one of
+     * the schedules configured on the scholarship's award cycle, and any other id is rejected.
+     * Example: `[12]`.
      *
-     * @var ?int $departmentId
+     * @var ?array<int> $paymentScheduleIds
      */
-    #[JsonProperty('department_id')]
-    public ?int $departmentId;
+    #[JsonProperty('payment_schedule_ids'), ArrayType(['integer'])]
+    public ?array $paymentScheduleIds;
 
     /**
-     * Optional list of donor or donor-organization user IDs associated with the scholarship.
-     * Example: `[101, 102]`.
+     * Optional stored ID of the department the scholarship is owned by. Used for Department Admin
+     * scoping. Example: `"9TQ3HX7PD"`.
      *
-     * @var ?array<int> $donorIds
+     * @var ?string $departmentId
      */
-    #[JsonProperty('donor_ids'), ArrayType(['integer'])]
+    #[JsonProperty('department_id')]
+    public ?string $departmentId;
+
+    /**
+     * Optional list of the stored IDs of donors or donor organizations associated with the scholarship.
+     * Example: `["2KD7RW4MA", "8PX5NT3QF"]`.
+     *
+     * @var ?array<string> $donorIds
+     */
+    #[JsonProperty('donor_ids'), ArrayType(['string'])]
     public ?array $donorIds;
 
     /**
@@ -167,11 +180,11 @@ class CreateScholarshipV1Request extends JsonSerializableType
 
     /**
      * @param array{
-     *   awardCycleId: int,
      *   scholarshipName?: ?string,
      *   fundId?: ?string,
      *   scholarshipDescription?: ?string,
      *   isSpecialFunds?: ?bool,
+     *   awardCycleId?: ?string,
      *   applicationStartDate?: ?string,
      *   applicationEndDate?: ?string,
      *   disbursementDate?: ?string,
@@ -179,21 +192,22 @@ class CreateScholarshipV1Request extends JsonSerializableType
      *   totalAwardsNumber?: ?int,
      *   totalScholarshipValue?: ?float,
      *   paymentsPerAward?: ?int,
-     *   departmentId?: ?int,
-     *   donorIds?: ?array<int>,
+     *   paymentScheduleIds?: ?array<int>,
+     *   departmentId?: ?string,
+     *   donorIds?: ?array<string>,
      *   isDeactivateScholarship?: ?bool,
      *   isInstitutionalAwardScholarship?: ?bool,
      *   internalNotes?: ?string,
      * } $values
      */
     public function __construct(
-        array $values,
+        array $values = [],
     ) {
         $this->scholarshipName = $values['scholarshipName'] ?? null;
         $this->fundId = $values['fundId'] ?? null;
         $this->scholarshipDescription = $values['scholarshipDescription'] ?? null;
         $this->isSpecialFunds = $values['isSpecialFunds'] ?? null;
-        $this->awardCycleId = $values['awardCycleId'];
+        $this->awardCycleId = $values['awardCycleId'] ?? null;
         $this->applicationStartDate = $values['applicationStartDate'] ?? null;
         $this->applicationEndDate = $values['applicationEndDate'] ?? null;
         $this->disbursementDate = $values['disbursementDate'] ?? null;
@@ -201,6 +215,7 @@ class CreateScholarshipV1Request extends JsonSerializableType
         $this->totalAwardsNumber = $values['totalAwardsNumber'] ?? null;
         $this->totalScholarshipValue = $values['totalScholarshipValue'] ?? null;
         $this->paymentsPerAward = $values['paymentsPerAward'] ?? null;
+        $this->paymentScheduleIds = $values['paymentScheduleIds'] ?? null;
         $this->departmentId = $values['departmentId'] ?? null;
         $this->donorIds = $values['donorIds'] ?? null;
         $this->isDeactivateScholarship = $values['isDeactivateScholarship'] ?? null;

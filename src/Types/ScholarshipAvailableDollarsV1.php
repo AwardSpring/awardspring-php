@@ -20,10 +20,10 @@ class ScholarshipAvailableDollarsV1 extends JsonSerializableType
     public ?string $object;
 
     /**
-     * @var ?int $id The scholarship's identifier — also the cursor anchor used for paging.
+     * @var ?string $id The scholarship's stored ID.
      */
     #[JsonProperty('id')]
-    public ?int $id;
+    public ?string $id;
 
     /**
      * @var ?string $name
@@ -52,7 +52,7 @@ class ScholarshipAvailableDollarsV1 extends JsonSerializableType
     /**
      * @param array{
      *   object?: ?string,
-     *   id?: ?int,
+     *   id?: ?string,
      *   name?: ?string,
      *   totalFunds?: ?float,
      *   totalAwardedAmount?: ?float,

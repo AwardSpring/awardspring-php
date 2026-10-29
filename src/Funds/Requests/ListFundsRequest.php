@@ -3,6 +3,7 @@
 namespace Awardspring\Funds\Requests;
 
 use Awardspring\Core\Json\JsonSerializableType;
+use Awardspring\Funds\Types\ListFundsRequestIncludeItem;
 
 class ListFundsRequest extends JsonSerializableType
 {
@@ -27,11 +28,17 @@ class ListFundsRequest extends JsonSerializableType
     public ?string $endingBefore;
 
     /**
+     * @var ?array<value-of<ListFundsRequestIncludeItem>> $include Optional extras to add to the response, comma-separated. `total_count` is the only supported value: it adds `total_count`, the number of records that match this request across all pages. The count is taken fresh at the moment of each request, so it can change while you page; ask for it on the first page. Without it, `total_count` is left out of the response. Asking or not never invalidates a cursor. Any other value returns `400 validation_failed`.
+     */
+    public ?array $include;
+
+    /**
      * @param array{
      *   q?: ?string,
      *   limit?: ?int,
      *   startingAfter?: ?string,
      *   endingBefore?: ?string,
+     *   include?: ?array<value-of<ListFundsRequestIncludeItem>>,
      * } $values
      */
     public function __construct(
@@ -41,5 +48,6 @@ class ListFundsRequest extends JsonSerializableType
         $this->limit = $values['limit'] ?? null;
         $this->startingAfter = $values['startingAfter'] ?? null;
         $this->endingBefore = $values['endingBefore'] ?? null;
+        $this->include = $values['include'] ?? null;
     }
 }

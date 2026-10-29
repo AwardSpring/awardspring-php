@@ -66,6 +66,8 @@ class ScholarshipsClient
      * Results are ordered by scholarship id ascending.
      * Filter with `?q=` (case-insensitive substring match on the scholarship name).
      *
+     * Assistant capability: `springiq_list_scholarships`. Required permission: Scholarships (applies when called on behalf of a signed-in person).
+     *
      * Example:
      * ```php
      * $client->scholarships->list(
@@ -101,6 +103,9 @@ class ScholarshipsClient
         }
         if ($request->endingBefore != null) {
             $query['ending_before'] = $request->endingBefore;
+        }
+        if ($request->include != null) {
+            $query['include'] = $request->include;
         }
         try {
             $response = $this->client->sendRequest(
@@ -158,12 +163,13 @@ class ScholarshipsClient
      * still executing returns `409 idempotency_key_in_flight`. Only 2xx responses are
      * cached — 4xx/5xx leave the key available for retry with a corrected payload.
      *
+     *
+     * Assistant capability: `springiq_create_scholarship`. Required permission: Scholarships (applies when called on behalf of a signed-in person).
+     *
      * Example:
      * ```php
      * $client->scholarships->create(
-     *     new CreateScholarshipV1Request([
-     *         'awardCycleId' => 1,
-     *     ]),
+     *     new CreateScholarshipV1Request([]),
      * );
      * ```
      *
@@ -214,11 +220,13 @@ class ScholarshipsClient
     }
 
     /**
+     * Assistant capability: `springiq_get_available_scholarship_dollars`. Required permission: Scholarships (applies when called on behalf of a signed-in person).
+     *
      * Example:
      * ```php
      * $client->scholarships->listAvailableDollars(
      *     new ListAvailableDollarsScholarshipsRequest([
-     *         'awardCycleId' => 1,
+     *         'awardCycleId' => 'award_cycle_id',
      *     ]),
      * );
      * ```
@@ -249,6 +257,9 @@ class ScholarshipsClient
         }
         if ($request->endingBefore != null) {
             $query['ending_before'] = $request->endingBefore;
+        }
+        if ($request->include != null) {
+            $query['include'] = $request->include;
         }
         try {
             $response = $this->client->sendRequest(
@@ -281,17 +292,19 @@ class ScholarshipsClient
     }
 
     /**
+     * Assistant capability: `springiq_get_available_scholarship_dollars`. Required permission: Scholarships (applies when called on behalf of a signed-in person).
+     *
      * Example:
      * ```php
      * $client->scholarships->getAvailableDollars(
-     *     1,
+     *     'scholarshipId',
      *     new GetAvailableDollarsScholarshipsRequest([
-     *         'awardCycleId' => 1,
+     *         'awardCycleId' => 'award_cycle_id',
      *     ]),
      * );
      * ```
      *
-     * @param int $scholarshipId
+     * @param string $scholarshipId
      * @param GetAvailableDollarsScholarshipsRequest $request
      * @param ?array{
      *   baseUrl?: string,
@@ -305,7 +318,7 @@ class ScholarshipsClient
      * @throws AwardspringException
      * @throws AwardspringApiException
      */
-    public function getAvailableDollars(int $scholarshipId, GetAvailableDollarsScholarshipsRequest $request, ?array $options = null): ?ScholarshipAvailableDollarsV1
+    public function getAvailableDollars(string $scholarshipId, GetAvailableDollarsScholarshipsRequest $request, ?array $options = null): ?ScholarshipAvailableDollarsV1
     {
         $options = array_merge($this->options, $options ?? []);
         $query = [];
@@ -341,11 +354,13 @@ class ScholarshipsClient
     }
 
     /**
+     * Assistant capability: `springiq_get_awarded_students`. Required permission: Scholarships (applies when called on behalf of a signed-in person).
+     *
      * Example:
      * ```php
      * $client->scholarships->listAwardedStudents(
      *     new ListAwardedStudentsScholarshipsRequest([
-     *         'awardCycleId' => 1,
+     *         'awardCycleId' => 'award_cycle_id',
      *     ]),
      * );
      * ```
@@ -379,6 +394,9 @@ class ScholarshipsClient
         }
         if ($request->endingBefore != null) {
             $query['ending_before'] = $request->endingBefore;
+        }
+        if ($request->include != null) {
+            $query['include'] = $request->include;
         }
         try {
             $response = $this->client->sendRequest(

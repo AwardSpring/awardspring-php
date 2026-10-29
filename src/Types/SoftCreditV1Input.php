@@ -6,9 +6,9 @@ use Awardspring\Core\Json\JsonSerializableType;
 use Awardspring\Core\Json\JsonProperty;
 
 /**
- * A single soft-credit recipient on a gift. Supply either UserId (an existing
- * AwardSpring user in this tenant) or a free-form Name. When both are given, the
- * user id wins and the name is dropped — mirroring the internal gift-entry flow.
+ * A single soft-credit recipient on a gift. Supply either UserId (the stored ID of an
+ * existing person at this institution) or a free-form Name. When both are given, the
+ * user ID wins and the name is dropped — mirroring the internal gift-entry flow.
  */
 class SoftCreditV1Input extends JsonSerializableType
 {
@@ -19,15 +19,15 @@ class SoftCreditV1Input extends JsonSerializableType
     public ?string $name;
 
     /**
-     * @var ?int $userId
+     * @var ?string $userId
      */
     #[JsonProperty('user_id')]
-    public ?int $userId;
+    public ?string $userId;
 
     /**
      * @param array{
      *   name?: ?string,
-     *   userId?: ?int,
+     *   userId?: ?string,
      * } $values
      */
     public function __construct(

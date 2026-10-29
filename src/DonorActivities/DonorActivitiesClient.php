@@ -55,15 +55,17 @@ class DonorActivitiesClient
     }
 
     /**
+     * Assistant capability: `springiq_list_donor_activities`. Required permission: Donors (applies when called on behalf of a signed-in person).
+     *
      * Example:
      * ```php
      * $client->donorActivities->list(
-     *     1,
+     *     'donorId',
      *     new ListDonorActivitiesRequest([]),
      * );
      * ```
      *
-     * @param int $donorId
+     * @param string $donorId
      * @param ListDonorActivitiesRequest $request
      * @param ?array{
      *   baseUrl?: string,
@@ -77,7 +79,7 @@ class DonorActivitiesClient
      * @throws AwardspringException
      * @throws AwardspringApiException
      */
-    public function list(int $donorId, ListDonorActivitiesRequest $request = new ListDonorActivitiesRequest(), ?array $options = null): ?DonorActivityV1ListResponse
+    public function list(string $donorId, ListDonorActivitiesRequest $request = new ListDonorActivitiesRequest(), ?array $options = null): ?DonorActivityV1ListResponse
     {
         $options = array_merge($this->options, $options ?? []);
         $query = [];
@@ -95,6 +97,9 @@ class DonorActivitiesClient
         }
         if ($request->endingBefore != null) {
             $query['ending_before'] = $request->endingBefore;
+        }
+        if ($request->include != null) {
+            $query['include'] = $request->include;
         }
         try {
             $response = $this->client->sendRequest(
@@ -149,15 +154,18 @@ class DonorActivitiesClient
      * call is still executing returns `409 idempotency_key_in_flight`. Only 2xx responses are cached —
      * 4xx/5xx leave the key available for retry with a corrected payload.
      *
+     *
+     * Assistant capability: `springiq_create_activity`. Required permission: Donors (applies when called on behalf of a signed-in person).
+     *
      * Example:
      * ```php
      * $client->donorActivities->create(
-     *     1,
+     *     'donorId',
      *     new CreateDonorActivityV1Request([]),
      * );
      * ```
      *
-     * @param int $donorId AwardSpring donor (or donor-organization) user ID to attach the activity to.
+     * @param string $donorId The stored ID of the donor (or donor organization) to attach the activity to.
      * @param CreateDonorActivityV1Request $request
      * @param ?array{
      *   baseUrl?: string,
@@ -171,7 +179,7 @@ class DonorActivitiesClient
      * @throws AwardspringException
      * @throws AwardspringApiException
      */
-    public function create(int $donorId, CreateDonorActivityV1Request $request, ?array $options = null): ?CreateDonorActivityV1Response
+    public function create(string $donorId, CreateDonorActivityV1Request $request, ?array $options = null): ?CreateDonorActivityV1Response
     {
         $options = array_merge($this->options, $options ?? []);
         try {
@@ -205,17 +213,19 @@ class DonorActivitiesClient
     }
 
     /**
+     * Assistant capability: `springiq_get_donor_activity`. Required permission: Donors (applies when called on behalf of a signed-in person).
+     *
      * Example:
      * ```php
      * $client->donorActivities->get(
-     *     1,
-     *     1,
+     *     'donorId',
+     *     'activityId',
      *     new GetDonorActivitiesRequest([]),
      * );
      * ```
      *
-     * @param int $donorId
-     * @param int $activityId
+     * @param string $donorId
+     * @param string $activityId
      * @param GetDonorActivitiesRequest $request
      * @param ?array{
      *   baseUrl?: string,
@@ -229,7 +239,7 @@ class DonorActivitiesClient
      * @throws AwardspringException
      * @throws AwardspringApiException
      */
-    public function get(int $donorId, int $activityId, GetDonorActivitiesRequest $request = new GetDonorActivitiesRequest(), ?array $options = null): ?DonorActivityV1
+    public function get(string $donorId, string $activityId, GetDonorActivitiesRequest $request = new GetDonorActivitiesRequest(), ?array $options = null): ?DonorActivityV1
     {
         $options = array_merge($this->options, $options ?? []);
         $query = [];

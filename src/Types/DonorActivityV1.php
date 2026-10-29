@@ -7,8 +7,7 @@ use Awardspring\Core\Json\JsonProperty;
 
 /**
  * A single item on a donor's merged activity timeline. Fields a given source doesn't populate are
- * null/default; (Source, Id) is the item's identity since Id
- * is unique only within a source.
+ * null/default.
  */
 class DonorActivityV1 extends JsonSerializableType
 {
@@ -22,10 +21,13 @@ class DonorActivityV1 extends JsonSerializableType
     public ?string $object;
 
     /**
-     * @var ?int $id Source-local identifier. Unique only within Source, not across the timeline.
+     * The stored ID of the row the item came from (a logged activity, an email, a text message, an award
+     * or a general application). Only a logged activity's ID opens the item on its own.
+     *
+     * @var ?string $id
      */
     #[JsonProperty('id')]
-    public ?int $id;
+    public ?string $id;
 
     /**
      * @var ?value-of<DonorActivitySourceV1> $source
@@ -88,16 +90,16 @@ class DonorActivityV1 extends JsonSerializableType
     public ?string $giftType;
 
     /**
-     * @var ?int $campaignId Campaign association (logged monetary activities); null otherwise.
+     * @var ?string $campaignId The stored ID of the campaign (logged monetary activities); null otherwise.
      */
     #[JsonProperty('campaign_id')]
-    public ?int $campaignId;
+    public ?string $campaignId;
 
     /**
-     * @var ?int $assignedToUserId Staff member the activity is assigned to (logged activities); null otherwise.
+     * @var ?string $assignedToUserId The stored ID of the staff member the activity is assigned to (logged activities); null otherwise.
      */
     #[JsonProperty('assigned_to_user_id')]
-    public ?int $assignedToUserId;
+    public ?string $assignedToUserId;
 
     /**
      * @var ?string $senderName Sender display name (system emails only); null otherwise.
@@ -108,7 +110,7 @@ class DonorActivityV1 extends JsonSerializableType
     /**
      * @param array{
      *   object?: ?string,
-     *   id?: ?int,
+     *   id?: ?string,
      *   source?: ?value-of<DonorActivitySourceV1>,
      *   activityType?: ?string,
      *   subject?: ?string,
@@ -119,8 +121,8 @@ class DonorActivityV1 extends JsonSerializableType
      *   isCompleted?: ?bool,
      *   giftAcknowledgementSent?: ?bool,
      *   giftType?: ?string,
-     *   campaignId?: ?int,
-     *   assignedToUserId?: ?int,
+     *   campaignId?: ?string,
+     *   assignedToUserId?: ?string,
      *   senderName?: ?string,
      * } $values
      */

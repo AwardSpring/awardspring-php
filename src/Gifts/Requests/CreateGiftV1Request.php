@@ -12,10 +12,10 @@ use Awardspring\Core\Types\ArrayType;
 class CreateGiftV1Request extends JsonSerializableType
 {
     /**
-     * @var ?int $donorId The donor (or donor organization) user id the gift is attributed to. Required.
+     * @var ?string $donorId The stored ID of the donor (or donor organization) the gift is attributed to. Required.
      */
     #[JsonProperty('donor_id')]
-    public ?int $donorId;
+    public ?string $donorId;
 
     /**
      * `gift` or `pledge`. Defaults to `gift` when omitted. Soft credits are only
@@ -76,10 +76,10 @@ class CreateGiftV1Request extends JsonSerializableType
     public ?string $fundId;
 
     /**
-     * @var ?int $campaignId
+     * @var ?string $campaignId The stored ID of a campaign at this institution to attribute the gift to. Optional.
      */
     #[JsonProperty('campaign_id')]
-    public ?int $campaignId;
+    public ?string $campaignId;
 
     /**
      * @var ?bool $isCompleted Only meaningful for pledges — marks the pledge fulfilled. Ignored for gifts.
@@ -88,10 +88,13 @@ class CreateGiftV1Request extends JsonSerializableType
     public ?bool $isCompleted;
 
     /**
-     * @var ?int $assignedToUserId Officer the record is assigned to. Must be a user in this tenant when supplied.
+     * The stored ID of the officer the record is assigned to. Must be a person at this institution when
+     * supplied.
+     *
+     * @var ?string $assignedToUserId
      */
     #[JsonProperty('assigned_to_user_id')]
-    public ?int $assignedToUserId;
+    public ?string $assignedToUserId;
 
     /**
      * @var ?array<SoftCreditV1Input> $softCredits Up to three soft-credit recipients. Honored on gifts only; ignored for pledges.
@@ -101,7 +104,7 @@ class CreateGiftV1Request extends JsonSerializableType
 
     /**
      * @param array{
-     *   donorId?: ?int,
+     *   donorId?: ?string,
      *   type?: ?value-of<CreateGiftV1RequestType>,
      *   giftType?: ?value-of<CreateGiftV1RequestGiftType>,
      *   amount?: ?float,
@@ -109,9 +112,9 @@ class CreateGiftV1Request extends JsonSerializableType
      *   description?: ?string,
      *   giftDate?: ?string,
      *   fundId?: ?string,
-     *   campaignId?: ?int,
+     *   campaignId?: ?string,
      *   isCompleted?: ?bool,
-     *   assignedToUserId?: ?int,
+     *   assignedToUserId?: ?string,
      *   softCredits?: ?array<SoftCreditV1Input>,
      * } $values
      */

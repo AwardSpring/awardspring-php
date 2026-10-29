@@ -17,10 +17,13 @@ class DonorV1 extends JsonSerializableType
     public ?string $object;
 
     /**
-     * @var ?int $id
+     * The donor's stored ID: 9 characters, sent exactly as stored. A dry-run create returns
+     * `null`, because no donor was saved.
+     *
+     * @var ?string $id
      */
     #[JsonProperty('id')]
-    public ?int $id;
+    public ?string $id;
 
     /**
      * @var ?string $firstName
@@ -226,7 +229,7 @@ class DonorV1 extends JsonSerializableType
     /**
      * @param array{
      *   object?: ?string,
-     *   id?: ?int,
+     *   id?: ?string,
      *   firstName?: ?string,
      *   lastName?: ?string,
      *   email?: ?string,

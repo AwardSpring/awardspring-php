@@ -22,10 +22,10 @@ class ScholarshipListItemV1 extends JsonSerializableType
     public ?string $object;
 
     /**
-     * @var ?int $id The scholarship's identifier — also the cursor anchor used for paging.
+     * @var ?string $id The scholarship's stored ID. Example: `"7HQ2KW9XR"`.
      */
     #[JsonProperty('id')]
-    public ?int $id;
+    public ?string $id;
 
     /**
      * @var ?string $name Scholarship name as configured by the institution.
@@ -46,10 +46,10 @@ class ScholarshipListItemV1 extends JsonSerializableType
     public ?bool $isActive;
 
     /**
-     * @var ?int $awardCycleId The award cycle the scholarship belongs to.
+     * @var ?string $awardCycleId The stored ID of the award cycle the scholarship belongs to.
      */
     #[JsonProperty('award_cycle_id')]
-    public ?int $awardCycleId;
+    public ?string $awardCycleId;
 
     /**
      * @var ?int $applicationStartDate When the scholarship's application window opens (UTC epoch seconds).
@@ -66,11 +66,11 @@ class ScholarshipListItemV1 extends JsonSerializableType
     /**
      * @param array{
      *   object?: ?string,
-     *   id?: ?int,
+     *   id?: ?string,
      *   name?: ?string,
      *   totalAmount?: ?float,
      *   isActive?: ?bool,
-     *   awardCycleId?: ?int,
+     *   awardCycleId?: ?string,
      *   applicationStartDate?: ?int,
      *   applicationEndDate?: ?int,
      * } $values

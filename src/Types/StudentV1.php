@@ -20,10 +20,10 @@ class StudentV1 extends JsonSerializableType
     public ?string $object;
 
     /**
-     * @var ?int $id AwardSpring's identifier for the student's user record. Use it with `GET /api/v1/students/{id}` and as the `user_id` filter on the applications and awards lists.
+     * @var ?string $id The stored ID of the student's user record. Use it with `GET /api/v1/students/{id}` and as the `user_id` filter on the applications and awards lists.
      */
     #[JsonProperty('id')]
-    public ?int $id;
+    public ?string $id;
 
     /**
      * @var ?string $firstName
@@ -71,7 +71,7 @@ class StudentV1 extends JsonSerializableType
     /**
      * @param array{
      *   object?: ?string,
-     *   id?: ?int,
+     *   id?: ?string,
      *   firstName?: ?string,
      *   lastName?: ?string,
      *   email?: ?string,

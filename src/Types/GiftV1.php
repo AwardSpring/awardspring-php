@@ -18,16 +18,19 @@ class GiftV1 extends JsonSerializableType
     public ?string $object;
 
     /**
-     * @var ?int $id
+     * The gift's or pledge's stored ID: 9 characters, sent exactly as stored. A dry-run create
+     * returns `null`, because nothing was saved.
+     *
+     * @var ?string $id
      */
     #[JsonProperty('id')]
-    public ?int $id;
+    public ?string $id;
 
     /**
-     * @var ?int $donorId
+     * @var ?string $donorId The stored ID of the donor the gift or pledge is attributed to.
      */
     #[JsonProperty('donor_id')]
-    public ?int $donorId;
+    public ?string $donorId;
 
     /**
      * @var ?string $type
@@ -60,16 +63,16 @@ class GiftV1 extends JsonSerializableType
     public ?string $description;
 
     /**
-     * @var ?string $fundId
+     * @var ?string $fundId The school's own code for the fund the gift is directed toward, as plain text.
      */
     #[JsonProperty('fund_id')]
     public ?string $fundId;
 
     /**
-     * @var ?int $campaignId
+     * @var ?string $campaignId The stored ID of the campaign the gift or pledge belongs to, or `null`.
      */
     #[JsonProperty('campaign_id')]
-    public ?int $campaignId;
+    public ?string $campaignId;
 
     /**
      * @var ?bool $isCompleted
@@ -98,15 +101,15 @@ class GiftV1 extends JsonSerializableType
     /**
      * @param array{
      *   object?: ?string,
-     *   id?: ?int,
-     *   donorId?: ?int,
+     *   id?: ?string,
+     *   donorId?: ?string,
      *   type?: ?string,
      *   giftType?: ?string,
      *   amount?: ?float,
      *   subject?: ?string,
      *   description?: ?string,
      *   fundId?: ?string,
-     *   campaignId?: ?int,
+     *   campaignId?: ?string,
      *   isCompleted?: ?bool,
      *   giftAcknowledgementSent?: ?bool,
      *   date?: ?int,

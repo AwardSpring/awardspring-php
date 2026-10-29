@@ -17,10 +17,10 @@ class DonorNotesV1 extends JsonSerializableType
     public ?string $object;
 
     /**
-     * @var ?int $id
+     * @var ?string $id The stored ID of the donor these notes belong to.
      */
     #[JsonProperty('id')]
-    public ?int $id;
+    public ?string $id;
 
     /**
      * @var ?string $notes
@@ -31,7 +31,7 @@ class DonorNotesV1 extends JsonSerializableType
     /**
      * @param array{
      *   object?: ?string,
-     *   id?: ?int,
+     *   id?: ?string,
      *   notes?: ?string,
      * } $values
      */

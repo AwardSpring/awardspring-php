@@ -20,16 +20,22 @@ class AwardedStudentV1 extends JsonSerializableType
     public ?string $object;
 
     /**
-     * @var ?int $id Award row identifier (the underlying OpportunityApplication id) — also the cursor anchor for the list.
+     * @var ?string $id The award's stored ID (its application's stored ID).
      */
     #[JsonProperty('id')]
-    public ?int $id;
+    public ?string $id;
 
     /**
-     * @var ?int $scholarshipId
+     * @var ?string $awardCode The award's 8-character award code. May be empty on awards made before award codes existed.
+     */
+    #[JsonProperty('award_code')]
+    public ?string $awardCode;
+
+    /**
+     * @var ?string $scholarshipId The scholarship's stored ID.
      */
     #[JsonProperty('scholarship_id')]
-    public ?int $scholarshipId;
+    public ?string $scholarshipId;
 
     /**
      * @var ?string $scholarshipName
@@ -82,8 +88,9 @@ class AwardedStudentV1 extends JsonSerializableType
     /**
      * @param array{
      *   object?: ?string,
-     *   id?: ?int,
-     *   scholarshipId?: ?int,
+     *   id?: ?string,
+     *   awardCode?: ?string,
+     *   scholarshipId?: ?string,
      *   scholarshipName?: ?string,
      *   fundId?: ?string,
      *   studentId?: ?string,
@@ -99,6 +106,7 @@ class AwardedStudentV1 extends JsonSerializableType
     ) {
         $this->object = $values['object'] ?? null;
         $this->id = $values['id'] ?? null;
+        $this->awardCode = $values['awardCode'] ?? null;
         $this->scholarshipId = $values['scholarshipId'] ?? null;
         $this->scholarshipName = $values['scholarshipName'] ?? null;
         $this->fundId = $values['fundId'] ?? null;

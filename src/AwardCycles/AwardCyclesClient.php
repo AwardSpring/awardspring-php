@@ -59,6 +59,8 @@ class AwardCyclesClient
      * Results are ordered by award-cycle id ascending. Filter with `?q=` (case-insensitive
      * substring match on the award-cycle name).
      *
+     * Assistant capability: `springiq_list_award_cycles`.
+     *
      * Example:
      * ```php
      * $client->awardCycles->list(
@@ -94,6 +96,9 @@ class AwardCyclesClient
         }
         if ($request->endingBefore != null) {
             $query['ending_before'] = $request->endingBefore;
+        }
+        if ($request->include != null) {
+            $query['include'] = $request->include;
         }
         try {
             $response = $this->client->sendRequest(
@@ -131,6 +136,8 @@ class AwardCyclesClient
      * marked next. When neither exists the endpoint returns `404 award_cycle_not_found` in the
      * structured v1 error shape — in that case list all cycles via `GET /api/v1/award-cycles`
      * and ask the user which one to use.
+     *
+     * Assistant capability: `springiq_get_current_award_cycle`.
      *
      * Example:
      * ```php

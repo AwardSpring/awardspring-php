@@ -11,17 +11,17 @@ use Awardspring\Core\Json\JsonProperty;
 class CreateScholarshipV1Response extends JsonSerializableType
 {
     /**
-     * AwardSpring-assigned identifier of the newly created scholarship (`Opportunity.Id`).
-     * Stable for the lifetime of the scholarship. Example: `1234`.
+     * The stored ID of the newly created scholarship. Stable for the lifetime of the scholarship. Null on
+     * a dry run, which creates nothing. Example: `"7HQ2KW9XR"`.
      *
-     * @var ?int $scholarshipId
+     * @var ?string $scholarshipId
      */
     #[JsonProperty('scholarship_id')]
-    public ?int $scholarshipId;
+    public ?string $scholarshipId;
 
     /**
      * @param array{
-     *   scholarshipId?: ?int,
+     *   scholarshipId?: ?string,
      * } $values
      */
     public function __construct(

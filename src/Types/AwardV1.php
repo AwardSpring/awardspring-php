@@ -20,22 +20,34 @@ class AwardV1 extends JsonSerializableType
     public ?string $object;
 
     /**
-     * @var ?int $id Award identifier — also the cursor anchor for the list.
+     * The award's ID: the stored ID of the application it was awarded on, so it equals that application's
+     * `id` in `GET /api/v1/applications`. It stays the same when the application is denied and awarded again.
+     *
+     * @var ?string $id
      */
     #[JsonProperty('id')]
-    public ?int $id;
+    public ?string $id;
 
     /**
-     * @var ?int $userId The recipient's user record id — the same value as the student resource's `id` (see the Students endpoints).
+     * The 8-character award code AwardSpring issued when the application was awarded. Null when none was issued,
+     * as on applications awarded before award codes existed.
+     *
+     * @var ?string $awardCode
+     */
+    #[JsonProperty('award_code')]
+    public ?string $awardCode;
+
+    /**
+     * @var ?string $userId The stored ID of the recipient's user record: the same value as the student resource's `id` (see the Students endpoints).
      */
     #[JsonProperty('user_id')]
-    public ?int $userId;
+    public ?string $userId;
 
     /**
-     * @var ?int $scholarshipId Identifier of the awarded scholarship (see the Scholarships endpoints).
+     * @var ?string $scholarshipId The stored ID of the awarded scholarship (see the Scholarships endpoints).
      */
     #[JsonProperty('scholarship_id')]
-    public ?int $scholarshipId;
+    public ?string $scholarshipId;
 
     /**
      * @var ?string $scholarshipName Name of the awarded scholarship, denormalized onto the row for convenience.
@@ -44,10 +56,10 @@ class AwardV1 extends JsonSerializableType
     public ?string $scholarshipName;
 
     /**
-     * @var ?int $awardCycleId Identifier of the award cycle the award belongs to (see the Award Cycles endpoints).
+     * @var ?string $awardCycleId The stored ID of the award cycle the award belongs to (see the Award Cycles endpoints).
      */
     #[JsonProperty('award_cycle_id')]
-    public ?int $awardCycleId;
+    public ?string $awardCycleId;
 
     /**
      * @var ?string $awardCycleName Name of the award cycle the award belongs to, denormalized onto the row for convenience.
@@ -70,11 +82,12 @@ class AwardV1 extends JsonSerializableType
     /**
      * @param array{
      *   object?: ?string,
-     *   id?: ?int,
-     *   userId?: ?int,
-     *   scholarshipId?: ?int,
+     *   id?: ?string,
+     *   awardCode?: ?string,
+     *   userId?: ?string,
+     *   scholarshipId?: ?string,
      *   scholarshipName?: ?string,
-     *   awardCycleId?: ?int,
+     *   awardCycleId?: ?string,
      *   awardCycleName?: ?string,
      *   awardedDate?: ?int,
      *   awardedAmount?: ?float,
@@ -85,6 +98,7 @@ class AwardV1 extends JsonSerializableType
     ) {
         $this->object = $values['object'] ?? null;
         $this->id = $values['id'] ?? null;
+        $this->awardCode = $values['awardCode'] ?? null;
         $this->userId = $values['userId'] ?? null;
         $this->scholarshipId = $values['scholarshipId'] ?? null;
         $this->scholarshipName = $values['scholarshipName'] ?? null;

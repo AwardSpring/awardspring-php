@@ -24,10 +24,13 @@ class CreateDonorActivityV1Response extends JsonSerializableType
     public ?string $object;
 
     /**
-     * @var ?int $id AwardSpring-assigned identifier of the newly created activity row. Stable for the lifetime of the activity.
+     * The new activity's stored ID: 9 characters, the same ID the donor's timeline shows for it. A dry run
+     * returns `null`, because nothing was saved.
+     *
+     * @var ?string $id
      */
     #[JsonProperty('id')]
-    public ?int $id;
+    public ?string $id;
 
     /**
      * @var ?string $activityType Echo of the activity type that was saved (e.g. `"LoggedEmail"`, `"LoggedPledge"`).
@@ -66,16 +69,16 @@ class CreateDonorActivityV1Response extends JsonSerializableType
     public ?string $fundId;
 
     /**
-     * @var ?int $campaignId Campaign association, or `null` for non-monetary activity types.
+     * @var ?string $campaignId The stored ID of the campaign the pledge belongs to, or `null` for non-monetary activity types.
      */
     #[JsonProperty('campaign_id')]
-    public ?int $campaignId;
+    public ?string $campaignId;
 
     /**
-     * @var ?int $assignedToUserId Staff member the activity was assigned to, or `null` when not assigned.
+     * @var ?string $assignedToUserId The stored ID of the staff member the activity was assigned to, or `null` when not assigned.
      */
     #[JsonProperty('assigned_to_user_id')]
-    public ?int $assignedToUserId;
+    public ?string $assignedToUserId;
 
     /**
      * @var ?bool $isCompleted Completion flag — meaningful only for `LoggedPledge`. Always `false` for non-monetary types.
@@ -86,15 +89,15 @@ class CreateDonorActivityV1Response extends JsonSerializableType
     /**
      * @param array{
      *   object?: ?string,
-     *   id?: ?int,
+     *   id?: ?string,
      *   activityType?: ?string,
      *   subject?: ?string,
      *   description?: ?string,
      *   date?: ?int,
      *   amount?: ?float,
      *   fundId?: ?string,
-     *   campaignId?: ?int,
-     *   assignedToUserId?: ?int,
+     *   campaignId?: ?string,
+     *   assignedToUserId?: ?string,
      *   isCompleted?: ?bool,
      * } $values
      */

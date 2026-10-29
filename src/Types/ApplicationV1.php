@@ -20,22 +20,22 @@ class ApplicationV1 extends JsonSerializableType
     public ?string $object;
 
     /**
-     * @var ?int $id Application identifier — also the cursor anchor for the list.
+     * @var ?string $id The application's stored ID. An award of this application has the same `id`.
      */
     #[JsonProperty('id')]
-    public ?int $id;
+    public ?string $id;
 
     /**
-     * @var ?int $userId The applicant's user record id — the same value as the student resource's `id` (see the Students endpoints).
+     * @var ?string $userId The stored ID of the applicant's user record: the same value as the student resource's `id` (see the Students endpoints).
      */
     #[JsonProperty('user_id')]
-    public ?int $userId;
+    public ?string $userId;
 
     /**
-     * @var ?int $scholarshipId Identifier of the scholarship applied to (see the Scholarships endpoints).
+     * @var ?string $scholarshipId The stored ID of the scholarship applied to (see the Scholarships endpoints).
      */
     #[JsonProperty('scholarship_id')]
-    public ?int $scholarshipId;
+    public ?string $scholarshipId;
 
     /**
      * @var ?string $scholarshipName Name of the scholarship applied to, denormalized onto the row for convenience.
@@ -44,10 +44,10 @@ class ApplicationV1 extends JsonSerializableType
     public ?string $scholarshipName;
 
     /**
-     * @var ?int $awardCycleId Identifier of the award cycle the application belongs to (see the Award Cycles endpoints).
+     * @var ?string $awardCycleId The stored ID of the award cycle the application belongs to (see the Award Cycles endpoints).
      */
     #[JsonProperty('award_cycle_id')]
-    public ?int $awardCycleId;
+    public ?string $awardCycleId;
 
     /**
      * @var ?string $awardCycleName Name of the award cycle the application belongs to, denormalized onto the row for convenience.
@@ -73,11 +73,11 @@ class ApplicationV1 extends JsonSerializableType
     /**
      * @param array{
      *   object?: ?string,
-     *   id?: ?int,
-     *   userId?: ?int,
-     *   scholarshipId?: ?int,
+     *   id?: ?string,
+     *   userId?: ?string,
+     *   scholarshipId?: ?string,
      *   scholarshipName?: ?string,
-     *   awardCycleId?: ?int,
+     *   awardCycleId?: ?string,
      *   awardCycleName?: ?string,
      *   status?: ?string,
      *   appliedDate?: ?int,

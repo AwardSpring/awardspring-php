@@ -5,10 +5,14 @@ namespace Awardspring;
 use Awardspring\Applications\ApplicationsClient;
 use Awardspring\AwardCycles\AwardCyclesClient;
 use Awardspring\Awards\AwardsClient;
+use Awardspring\Departments\DepartmentsClient;
 use Awardspring\DonorActivities\DonorActivitiesClient;
 use Awardspring\Donors\DonorsClient;
 use Awardspring\Funds\FundsClient;
 use Awardspring\Gifts\GiftsClient;
+use Awardspring\PaymentSchedules\PaymentSchedulesClient;
+use Awardspring\People\PeopleClient;
+use Awardspring\Reviewers\ReviewersClient;
 use Awardspring\Scholarships\ScholarshipsClient;
 use Awardspring\Students\StudentsClient;
 use Psr\Http\Client\ClientInterface;
@@ -32,6 +36,11 @@ class AwardspringApiClient
     public AwardsClient $awards;
 
     /**
+     * @var DepartmentsClient $departments
+     */
+    public DepartmentsClient $departments;
+
+    /**
      * @var DonorActivitiesClient $donorActivities
      */
     public DonorActivitiesClient $donorActivities;
@@ -50,6 +59,21 @@ class AwardspringApiClient
      * @var GiftsClient $gifts
      */
     public GiftsClient $gifts;
+
+    /**
+     * @var PaymentSchedulesClient $paymentSchedules
+     */
+    public PaymentSchedulesClient $paymentSchedules;
+
+    /**
+     * @var PeopleClient $people
+     */
+    public PeopleClient $people;
+
+    /**
+     * @var ReviewersClient $reviewers
+     */
+    public ReviewersClient $reviewers;
 
     /**
      * @var ScholarshipsClient $scholarships
@@ -95,8 +119,8 @@ class AwardspringApiClient
             'X-Spring-API-Key' => $apiKey,
             'X-Fern-Language' => 'PHP',
             'X-Fern-SDK-Name' => 'Awardspring',
-            'X-Fern-SDK-Version' => '0.1.10',
-            'User-Agent' => 'awardspring/awardspring-php/0.1.10',
+            'X-Fern-SDK-Version' => '0.1.11',
+            'User-Agent' => 'awardspring/awardspring-php/0.1.11',
         ];
 
         $this->options = $options ?? [];
@@ -113,10 +137,14 @@ class AwardspringApiClient
         $this->applications = new ApplicationsClient($this->client, $this->options);
         $this->awardCycles = new AwardCyclesClient($this->client, $this->options);
         $this->awards = new AwardsClient($this->client, $this->options);
+        $this->departments = new DepartmentsClient($this->client, $this->options);
         $this->donorActivities = new DonorActivitiesClient($this->client, $this->options);
         $this->donors = new DonorsClient($this->client, $this->options);
         $this->funds = new FundsClient($this->client, $this->options);
         $this->gifts = new GiftsClient($this->client, $this->options);
+        $this->paymentSchedules = new PaymentSchedulesClient($this->client, $this->options);
+        $this->people = new PeopleClient($this->client, $this->options);
+        $this->reviewers = new ReviewersClient($this->client, $this->options);
         $this->scholarships = new ScholarshipsClient($this->client, $this->options);
         $this->students = new StudentsClient($this->client, $this->options);
     }

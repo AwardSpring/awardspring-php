@@ -17,10 +17,10 @@ class FundListItemV1 extends JsonSerializableType
     public ?string $object;
 
     /**
-     * @var ?int $id
+     * @var ?string $id The fund's stored ID. The school's own fund code is `fund_id`.
      */
     #[JsonProperty('id')]
-    public ?int $id;
+    public ?string $id;
 
     /**
      * @var ?string $fundId
@@ -49,7 +49,7 @@ class FundListItemV1 extends JsonSerializableType
     /**
      * @param array{
      *   object?: ?string,
-     *   id?: ?int,
+     *   id?: ?string,
      *   fundId?: ?string,
      *   remainingBalance?: ?int,
      *   fundType?: ?string,

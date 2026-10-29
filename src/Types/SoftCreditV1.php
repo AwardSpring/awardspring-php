@@ -14,15 +14,15 @@ class SoftCreditV1 extends JsonSerializableType
     public ?string $name;
 
     /**
-     * @var ?int $userId
+     * @var ?string $userId The stored ID of the person credited, or `null` for a name-only credit.
      */
     #[JsonProperty('user_id')]
-    public ?int $userId;
+    public ?string $userId;
 
     /**
      * @param array{
      *   name?: ?string,
-     *   userId?: ?int,
+     *   userId?: ?string,
      * } $values
      */
     public function __construct(

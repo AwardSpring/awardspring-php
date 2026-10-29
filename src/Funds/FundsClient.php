@@ -57,6 +57,8 @@ class FundsClient
      * `starting_after`. Filter with `?q=` (case-insensitive substring match on the
      * fund name).
      *
+     * Assistant capability: `springiq_list_funds`. Required permission: Funds (applies when called on behalf of a signed-in person).
+     *
      * Example:
      * ```php
      * $client->funds->list(
@@ -92,6 +94,9 @@ class FundsClient
         }
         if ($request->endingBefore != null) {
             $query['ending_before'] = $request->endingBefore;
+        }
+        if ($request->include != null) {
+            $query['include'] = $request->include;
         }
         try {
             $response = $this->client->sendRequest(

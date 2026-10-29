@@ -65,7 +65,7 @@ $client = new AwardspringApiClient(
     apiKey: '<value>',
 );
 $client->donors->get(
-    1,
+    'id',
 );
 
 ```
@@ -82,7 +82,7 @@ $client = new AwardspringApiClient(
     apiKey: '<value>',
 );
 $client->donorActivities->list(
-    1,
+    'donorId',
     new ListDonorActivitiesRequest([]),
 );
 
@@ -100,8 +100,8 @@ $client = new AwardspringApiClient(
     apiKey: '<value>',
 );
 $client->donorActivities->get(
-    1,
-    1,
+    'donorId',
+    'activityId',
     new GetDonorActivitiesRequest([]),
 );
 
@@ -154,7 +154,7 @@ $client = new AwardspringApiClient(
 );
 $client->scholarships->listAvailableDollars(
     new ListAvailableDollarsScholarshipsRequest([
-        'awardCycleId' => 1,
+        'awardCycleId' => 'award_cycle_id',
     ]),
 );
 
@@ -172,9 +172,9 @@ $client = new AwardspringApiClient(
     apiKey: '<value>',
 );
 $client->scholarships->getAvailableDollars(
-    1,
+    'scholarshipId',
     new GetAvailableDollarsScholarshipsRequest([
-        'awardCycleId' => 1,
+        'awardCycleId' => 'award_cycle_id',
     ]),
 );
 
@@ -193,7 +193,7 @@ $client = new AwardspringApiClient(
 );
 $client->scholarships->listAwardedStudents(
     new ListAwardedStudentsScholarshipsRequest([
-        'awardCycleId' => 1,
+        'awardCycleId' => 'award_cycle_id',
     ]),
 );
 
@@ -227,7 +227,7 @@ $client = new AwardspringApiClient(
     apiKey: '<value>',
 );
 $client->students->get(
-    1,
+    'id',
 );
 
 ```
@@ -320,6 +320,57 @@ $client->awardCycles->getCurrent();
 namespace Example;
 
 use Awardspring\AwardspringApiClient;
+use Awardspring\PaymentSchedules\Requests\ListPaymentSchedulesRequest;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->paymentSchedules->list(
+    new ListPaymentSchedulesRequest([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\People\Requests\ListPeopleRequest;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->people->list(
+    new ListPeopleRequest([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\Departments\Requests\ListDepartmentsRequest;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->departments->list(
+    new ListDepartmentsRequest([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
 use Awardspring\Donors\Requests\CreateDonorV1Request;
 
 $client = new AwardspringApiClient(
@@ -343,7 +394,7 @@ $client = new AwardspringApiClient(
     apiKey: '<value>',
 );
 $client->donors->update(
-    1,
+    'id',
     new UpdateDonorV1Request([]),
 );
 
@@ -361,7 +412,7 @@ $client = new AwardspringApiClient(
     apiKey: '<value>',
 );
 $client->donors->updateNotes(
-    1,
+    'id',
     new UpdateDonorNotesV1Request([]),
 );
 
@@ -379,7 +430,7 @@ $client = new AwardspringApiClient(
     apiKey: '<value>',
 );
 $client->donorActivities->create(
-    1,
+    'donorId',
     new CreateDonorActivityV1Request([]),
 );
 
@@ -414,9 +465,90 @@ $client = new AwardspringApiClient(
     apiKey: '<value>',
 );
 $client->scholarships->create(
-    new CreateScholarshipV1Request([
-        'awardCycleId' => 1,
-    ]),
+    new CreateScholarshipV1Request([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\Departments\Requests\CreateDepartmentV1Request;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->departments->create(
+    new CreateDepartmentV1Request([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\Students\Requests\CreateStudentV1Request;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->students->create(
+    new CreateStudentV1Request([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+use Awardspring\Reviewers\Requests\CreateReviewerV1Request;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->reviewers->create(
+    new CreateReviewerV1Request([]),
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->people->archive(
+    'id',
+);
+
+```
+
+```php
+<?php
+
+namespace Example;
+
+use Awardspring\AwardspringApiClient;
+
+$client = new AwardspringApiClient(
+    apiKey: '<value>',
+);
+$client->people->restore(
+    'id',
 );
 
 ```
