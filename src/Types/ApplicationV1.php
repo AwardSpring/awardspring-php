@@ -71,6 +71,16 @@ class ApplicationV1 extends JsonSerializableType
     public ?int $appliedDate;
 
     /**
+     * The student's entry-gate result on this award cycle's general application: `qualified`,
+     * `blocked_at_entry`, `pending`, or null when the application has no entry questions or
+     * the student was never evaluated.
+     *
+     * @var ?string $entryOutcome
+     */
+    #[JsonProperty('entry_outcome')]
+    public ?string $entryOutcome;
+
+    /**
      * @param array{
      *   object?: ?string,
      *   id?: ?string,
@@ -81,6 +91,7 @@ class ApplicationV1 extends JsonSerializableType
      *   awardCycleName?: ?string,
      *   status?: ?string,
      *   appliedDate?: ?int,
+     *   entryOutcome?: ?string,
      * } $values
      */
     public function __construct(
@@ -95,6 +106,7 @@ class ApplicationV1 extends JsonSerializableType
         $this->awardCycleName = $values['awardCycleName'] ?? null;
         $this->status = $values['status'] ?? null;
         $this->appliedDate = $values['appliedDate'] ?? null;
+        $this->entryOutcome = $values['entryOutcome'] ?? null;
     }
 
     /**

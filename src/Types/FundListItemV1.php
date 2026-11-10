@@ -29,10 +29,14 @@ class FundListItemV1 extends JsonSerializableType
     public ?string $fundId;
 
     /**
-     * @var ?int $remainingBalance
+     * The money left in the fund, in dollars, rounded to two decimal places: every deposit and gift into it, less
+     * every disbursement and decided award paid from it, over the fund's whole history.
+     * `0` when the fund has had no money in or out. Example: `1500.25`.
+     *
+     * @var ?float $remainingBalance
      */
     #[JsonProperty('remaining_balance')]
-    public ?int $remainingBalance;
+    public ?float $remainingBalance;
 
     /**
      * @var ?string $fundType
@@ -51,7 +55,7 @@ class FundListItemV1 extends JsonSerializableType
      *   object?: ?string,
      *   id?: ?string,
      *   fundId?: ?string,
-     *   remainingBalance?: ?int,
+     *   remainingBalance?: ?float,
      *   fundType?: ?string,
      *   isEndowed?: ?bool,
      * } $values

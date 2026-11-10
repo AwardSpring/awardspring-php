@@ -4,6 +4,7 @@ namespace Awardspring\Types;
 
 use Awardspring\Core\Json\JsonSerializableType;
 use Awardspring\Core\Json\JsonProperty;
+use Awardspring\Core\Types\ArrayType;
 
 class DonorDetailV1 extends JsonSerializableType
 {
@@ -21,6 +22,25 @@ class DonorDetailV1 extends JsonSerializableType
      */
     #[JsonProperty('quick_stats')]
     public ?DonorQuickStatsV1 $quickStats;
+
+    /**
+     * The names of the tags on this donor, in the order the institution lists its tags. Empty when the donor has
+     * none.
+     *
+     * @var ?array<string> $tags
+     */
+    #[JsonProperty('tags'), ArrayType(['string'])]
+    public ?array $tags;
+
+    /**
+     * The institution's donor custom fields that apply to this kind of donor (individual or organization), in the
+     * order the institution lists them, each with this donor's answer. A field the donor has not answered is
+     * included with no answer.
+     *
+     * @var ?array<DonorCustomFieldV1> $customFields
+     */
+    #[JsonProperty('custom_fields'), ArrayType([DonorCustomFieldV1::class])]
+    public ?array $customFields;
 
     /**
      * The donor's stored ID: 9 characters, sent exactly as stored. A dry-run create returns
@@ -236,6 +256,8 @@ class DonorDetailV1 extends JsonSerializableType
      * @param array{
      *   object?: ?string,
      *   quickStats?: ?DonorQuickStatsV1,
+     *   tags?: ?array<string>,
+     *   customFields?: ?array<DonorCustomFieldV1>,
      *   id?: ?string,
      *   firstName?: ?string,
      *   lastName?: ?string,
@@ -277,6 +299,8 @@ class DonorDetailV1 extends JsonSerializableType
     ) {
         $this->object = $values['object'] ?? null;
         $this->quickStats = $values['quickStats'] ?? null;
+        $this->tags = $values['tags'] ?? null;
+        $this->customFields = $values['customFields'] ?? null;
         $this->id = $values['id'] ?? null;
         $this->firstName = $values['firstName'] ?? null;
         $this->lastName = $values['lastName'] ?? null;

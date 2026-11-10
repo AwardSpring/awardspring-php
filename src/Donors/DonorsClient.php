@@ -252,7 +252,8 @@ class DonorsClient
 
     /**
      * Includes giving totals for the donor's lifetime and the current year, their most recent
-     * gift, and their notes. `id` is the donor's stored ID. Returns `404 donor_not_found`
+     * gift, their notes, the tags on the donor, and their answers to the institution's donor custom
+     * fields. `id` is the donor's stored ID. Returns `404 donor_not_found`
      * naming `id` if no such donor belongs to this institution.
      *
      * Assistant capability: `springiq_get_donor_profile`. Required permission: Donors (applies when called on behalf of a signed-in person).
@@ -313,6 +314,10 @@ class DonorsClient
      * Only the fields present in the request body change; anything omitted is left alone. Send
      * `dry_run` to validate the request without saving it.
      *
+     * <b>Administrator accounts:</b> a program with an API key never changes an account that holds an
+     * administrator role. A donor who is also an administrator returns `400 validation_failed` naming
+     * `id`, and nothing is saved; change them in AwardSpring instead.
+     *
      * Example:
      * ```php
      * $client->donors->update(
@@ -371,6 +376,10 @@ class DonorsClient
     /**
      * Replaces the donor's free-text notes. `id` is the donor's stored ID. Returns
      * `404 donor_not_found` naming `id` if no such donor belongs to this institution.
+     *
+     * <b>Administrator accounts:</b> a program with an API key never changes an account that holds an
+     * administrator role. A donor who is also an administrator returns `400 validation_failed` naming
+     * `id`, and the notes are not saved; change them in AwardSpring instead.
      *
      * Example:
      * ```php

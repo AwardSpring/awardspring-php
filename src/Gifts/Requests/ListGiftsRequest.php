@@ -3,6 +3,7 @@
 namespace Awardspring\Gifts\Requests;
 
 use Awardspring\Core\Json\JsonSerializableType;
+use Awardspring\Gifts\Types\ListGiftsRequestSort;
 use Awardspring\Gifts\Types\ListGiftsRequestIncludeItem;
 
 class ListGiftsRequest extends JsonSerializableType
@@ -21,6 +22,15 @@ class ListGiftsRequest extends JsonSerializableType
      * @var ?string $q Free-text search (`?q=`): case-insensitive substring match on subject or description.
      */
     public ?string $q;
+
+    /**
+     * The order to list gifts in (`?sort=`): `date_desc` for the newest gift date first, or
+     * `date_asc` for the oldest gift date first. Leave it out for the order the gifts were
+     * recorded in. Any other value returns `400 validation_failed`.
+     *
+     * @var ?value-of<ListGiftsRequestSort> $sort
+     */
+    public ?string $sort;
 
     /**
      * @var ?int $limit Page size. Defaults to 25. Values outside 1–100 are clamped rather than rejected.
@@ -47,6 +57,7 @@ class ListGiftsRequest extends JsonSerializableType
      *   donorId?: ?string,
      *   type?: ?string,
      *   q?: ?string,
+     *   sort?: ?value-of<ListGiftsRequestSort>,
      *   limit?: ?int,
      *   startingAfter?: ?string,
      *   endingBefore?: ?string,
@@ -59,6 +70,7 @@ class ListGiftsRequest extends JsonSerializableType
         $this->donorId = $values['donorId'] ?? null;
         $this->type = $values['type'] ?? null;
         $this->q = $values['q'] ?? null;
+        $this->sort = $values['sort'] ?? null;
         $this->limit = $values['limit'] ?? null;
         $this->startingAfter = $values['startingAfter'] ?? null;
         $this->endingBefore = $values['endingBefore'] ?? null;

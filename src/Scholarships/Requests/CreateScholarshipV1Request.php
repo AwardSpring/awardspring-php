@@ -121,14 +121,14 @@ class CreateScholarshipV1Request extends JsonSerializableType
 
     /**
      * The award cycle's payment schedules used for the second and later payments, one per payment after
-     * the first, in date order. Required when `payments_per_award` is 2 or more, and must be left out
-     * otherwise. List them with `GET /api/v1/payment-schedules?award_cycle_id=`; each id must be one of
-     * the schedules configured on the scholarship's award cycle, and any other id is rejected.
-     * Example: `[12]`.
+     * the first, in date order, named by their stored IDs (9 characters, capital letters and numbers).
+     * Required when `payments_per_award` is 2 or more, and must be left out otherwise. List them with
+     * `GET /api/v1/payment-schedules?award_cycle_id=`; each ID must be one of the schedules configured on
+     * the scholarship's award cycle, and any other ID is rejected. Example: `["7HN4KX2RB"]`.
      *
-     * @var ?array<int> $paymentScheduleIds
+     * @var ?array<string> $paymentScheduleIds
      */
-    #[JsonProperty('payment_schedule_ids'), ArrayType(['integer'])]
+    #[JsonProperty('payment_schedule_ids'), ArrayType(['string'])]
     public ?array $paymentScheduleIds;
 
     /**
@@ -192,7 +192,7 @@ class CreateScholarshipV1Request extends JsonSerializableType
      *   totalAwardsNumber?: ?int,
      *   totalScholarshipValue?: ?float,
      *   paymentsPerAward?: ?int,
-     *   paymentScheduleIds?: ?array<int>,
+     *   paymentScheduleIds?: ?array<string>,
      *   departmentId?: ?string,
      *   donorIds?: ?array<string>,
      *   isDeactivateScholarship?: ?bool,

@@ -14,6 +14,7 @@ use Awardspring\Core\Client\HttpMethod;
 use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
 use Awardspring\Types\AwardCycleV1;
+use Awardspring\Types\AvailableDollarsSummaryV1;
 
 class AwardCyclesClient
 {
@@ -175,6 +176,71 @@ class AwardCyclesClient
                     return null;
                 }
                 return AwardCycleV1::fromJson($json);
+            }
+        } catch (JsonException $e) {
+            throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);
+        } catch (ClientExceptionInterface $e) {
+            throw new AwardspringException(message: $e->getMessage(), previous: $e);
+        }
+        throw new AwardspringApiException(
+            message: 'API request failed',
+            statusCode: $statusCode,
+            body: $response->getBody()->getContents(),
+        );
+    }
+
+    /**
+     * Returns one available-dollars summary (`object: "available_dollars_summary"`): the budget, awarded and remaining amounts of
+     * every active scholarship in the award cycle added together, and how many of those scholarships are
+     * over-awarded. The totals add up the same scholarships and amounts that
+     * `GET /api/v1/scholarships/available-dollars` lists for the same cycle, so use this endpoint for a
+     * cycle-wide total instead of paging through that list. An over-awarded scholarship (one that has awarded
+     * more than its budget) is included and counts against `total_amount_remaining`. A cycle with no
+     * active scholarships returns zeros, not an error. An award cycle ID the institution does not have returns
+     * `404 award_cycle_not_found` naming `awardCycleId`; to find the cycle running now, call
+     * `GET /api/v1/award-cycles/current`.
+     *
+     * Assistant capability: `springiq_get_available_dollars_summary`. Required permission: Scholarships (applies when called on behalf of a signed-in person).
+     *
+     * Example:
+     * ```php
+     * $client->awardCycles->getAvailableDollarsSummary(
+     *     'awardCycleId',
+     * );
+     * ```
+     *
+     * @param string $awardCycleId The award cycle's stored ID.
+     * @param ?array{
+     *   baseUrl?: string,
+     *   maxRetries?: int,
+     *   timeout?: float,
+     *   headers?: array<string, string>,
+     *   queryParameters?: array<string, mixed>,
+     *   bodyProperties?: array<string, mixed>,
+     * } $options
+     * @return ?AvailableDollarsSummaryV1
+     * @throws AwardspringException
+     * @throws AwardspringApiException
+     */
+    public function getAvailableDollarsSummary(string $awardCycleId, ?array $options = null): ?AvailableDollarsSummaryV1
+    {
+        $options = array_merge($this->options, $options ?? []);
+        try {
+            $response = $this->client->sendRequest(
+                new JsonApiRequest(
+                    baseUrl: $options['baseUrl'] ?? $this->client->options['baseUrl'] ?? Environments::UnitedStates->value,
+                    path: "api/v1/award-cycles/{$awardCycleId}/available-dollars-summary",
+                    method: HttpMethod::GET,
+                ),
+                $options,
+            );
+            $statusCode = $response->getStatusCode();
+            if ($statusCode >= 200 && $statusCode < 400) {
+                $json = $response->getBody()->getContents();
+                if (empty($json)) {
+                    return null;
+                }
+                return AvailableDollarsSummaryV1::fromJson($json);
             }
         } catch (JsonException $e) {
             throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);

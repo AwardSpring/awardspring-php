@@ -15,6 +15,7 @@ use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
 use Awardspring\Students\Requests\CreateStudentV1Request;
 use Awardspring\Types\StudentV1;
+use Awardspring\Students\Requests\UpdateStudentV1Request;
 
 class StudentsClient
 {
@@ -255,6 +256,93 @@ class StudentsClient
                     baseUrl: $options['baseUrl'] ?? $this->client->options['baseUrl'] ?? Environments::UnitedStates->value,
                     path: "api/v1/students/{$id}",
                     method: HttpMethod::GET,
+                ),
+                $options,
+            );
+            $statusCode = $response->getStatusCode();
+            if ($statusCode >= 200 && $statusCode < 400) {
+                $json = $response->getBody()->getContents();
+                if (empty($json)) {
+                    return null;
+                }
+                return StudentV1::fromJson($json);
+            }
+        } catch (JsonException $e) {
+            throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);
+        } catch (ClientExceptionInterface $e) {
+            throw new AwardspringException(message: $e->getMessage(), previous: $e);
+        }
+        throw new AwardspringApiException(
+            message: 'API request failed',
+            statusCode: $statusCode,
+            body: $response->getBody()->getContents(),
+        );
+    }
+
+    /**
+     * Changes a student's `first_name`, `last_name`, `email`, `student_id` and `phone`,
+     * with the same checks as changing them on the student's account in the AwardSpring admin interface. The
+     * student is named by their `id` from the students list. The change is recorded under your API key.
+     *
+     * <b>Only what you send changes:</b> a field left out of the body, or sent as `null`, stays as it is.
+     * An empty `phone` or `student_id` clears it. A name or email cannot be cleared: an empty one returns
+     * `400 validation_failed` naming the field. Any other field in the body, such as `gpa`, returns
+     * `400 validation_failed` naming it, and nothing is saved.
+     *
+     * <b>What is refused:</b> a `student_id` already on another account at the institution, a value longer
+     * than its limit, or a malformed email returns `400 validation_failed` naming the field. An email any
+     * other account at the institution has, ignoring upper and lower case and including an archived account,
+     * returns `400 email_already_exists` naming `email`. Changing the email changes how the student
+     * signs in, and no email is sent to them about it. A refused request saves nothing.
+     *
+     * <b>Administrator accounts:</b> a program with an API key never changes an account that holds an
+     * administrator role. A student who is also an administrator returns `400 validation_failed` naming
+     * `id`; change them in AwardSpring instead.
+     *
+     *
+     * An `id` that names no student at the institution, including a donor's or reviewer's `id`,
+     * returns `404 student_not_found`, naming `id` in `param`. Send `dry_run` to run every
+     * check without saving: the response shows the student as the change would leave them. The student resource
+     * has no phone, so a phone change does not appear in the response.
+     *
+     * <b>Idempotency:</b> the request supports an optional `Idempotency-Key` header (any
+     * printable-ASCII string, 1–255 chars — UUIDs work well). When supplied, the same key plus the same
+     * request body within 24 hours returns the original response verbatim without changing the student again.
+     * The same key with a different body returns `422 idempotency_key_request_mismatch`; a concurrent retry
+     * while the first call is still executing returns `409 idempotency_key_in_flight`.
+     *
+     * Example:
+     * ```php
+     * $client->students->update(
+     *     'id',
+     *     new UpdateStudentV1Request([]),
+     * );
+     * ```
+     *
+     * @param string $id The student's id, as the students list returns it.
+     * @param UpdateStudentV1Request $request
+     * @param ?array{
+     *   baseUrl?: string,
+     *   maxRetries?: int,
+     *   timeout?: float,
+     *   headers?: array<string, string>,
+     *   queryParameters?: array<string, mixed>,
+     *   bodyProperties?: array<string, mixed>,
+     * } $options
+     * @return ?StudentV1
+     * @throws AwardspringException
+     * @throws AwardspringApiException
+     */
+    public function update(string $id, UpdateStudentV1Request $request = new UpdateStudentV1Request(), ?array $options = null): ?StudentV1
+    {
+        $options = array_merge($this->options, $options ?? []);
+        try {
+            $response = $this->client->sendRequest(
+                new JsonApiRequest(
+                    baseUrl: $options['baseUrl'] ?? $this->client->options['baseUrl'] ?? Environments::UnitedStates->value,
+                    path: "api/v1/students/{$id}",
+                    method: HttpMethod::PATCH,
+                    body: $request,
                 ),
                 $options,
             );

@@ -57,6 +57,15 @@ class CreateDonorActivityV1Response extends JsonSerializableType
     public ?int $date;
 
     /**
+     * Echo of the saved place for the meeting or call, with surrounding spaces removed, or `null` when
+     * no place was given.
+     *
+     * @var ?string $place
+     */
+    #[JsonProperty('place')]
+    public ?string $place;
+
+    /**
      * @var ?float $amount Pledge amount, or `null` for non-monetary activity types.
      */
     #[JsonProperty('amount')]
@@ -94,6 +103,7 @@ class CreateDonorActivityV1Response extends JsonSerializableType
      *   subject?: ?string,
      *   description?: ?string,
      *   date?: ?int,
+     *   place?: ?string,
      *   amount?: ?float,
      *   fundId?: ?string,
      *   campaignId?: ?string,
@@ -110,6 +120,7 @@ class CreateDonorActivityV1Response extends JsonSerializableType
         $this->subject = $values['subject'] ?? null;
         $this->description = $values['description'] ?? null;
         $this->date = $values['date'] ?? null;
+        $this->place = $values['place'] ?? null;
         $this->amount = $values['amount'] ?? null;
         $this->fundId = $values['fundId'] ?? null;
         $this->campaignId = $values['campaignId'] ?? null;

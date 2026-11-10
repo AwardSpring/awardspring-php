@@ -93,6 +93,15 @@ class CreateDonorActivityV1Request extends JsonSerializableType
     public ?bool $isCompleted;
 
     /**
+     * Optional place for the meeting or call: a room, an address or a call link, up to 500 characters after
+     * surrounding spaces are removed. Empty or only spaces means no place. Example: `"Alumni House, Room 204"`.
+     *
+     * @var ?string $place
+     */
+    #[JsonProperty('place')]
+    public ?string $place;
+
+    /**
      * @param array{
      *   activityType?: ?value-of<CreateDonorActivityV1RequestActivityType>,
      *   activityDate?: ?string,
@@ -103,6 +112,7 @@ class CreateDonorActivityV1Request extends JsonSerializableType
      *   campaignId?: ?string,
      *   assignedToUserId?: ?string,
      *   isCompleted?: ?bool,
+     *   place?: ?string,
      * } $values
      */
     public function __construct(
@@ -117,5 +127,6 @@ class CreateDonorActivityV1Request extends JsonSerializableType
         $this->campaignId = $values['campaignId'] ?? null;
         $this->assignedToUserId = $values['assignedToUserId'] ?? null;
         $this->isCompleted = $values['isCompleted'] ?? null;
+        $this->place = $values['place'] ?? null;
     }
 }

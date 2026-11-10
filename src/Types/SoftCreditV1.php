@@ -8,6 +8,9 @@ use Awardspring\Core\Json\JsonProperty;
 class SoftCreditV1 extends JsonSerializableType
 {
     /**
+     * The name recorded for the credit, or `null` when none was recorded, as for a credit that names a
+     * person through `user_id`.
+     *
      * @var ?string $name
      */
     #[JsonProperty('name')]

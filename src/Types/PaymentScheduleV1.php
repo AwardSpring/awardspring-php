@@ -23,10 +23,13 @@ class PaymentScheduleV1 extends JsonSerializableType
     public ?string $object;
 
     /**
-     * @var ?int $id AwardSpring payment-schedule identifier — also the cursor anchor for paging. Example: `12`.
+     * The payment schedule's stored ID: 9 characters, capital letters and numbers. Pass it in a scholarship's
+     * `payment_schedule_ids`. Example: `"7HN4KX2RB"`.
+     *
+     * @var ?string $id
      */
     #[JsonProperty('id')]
-    public ?int $id;
+    public ?string $id;
 
     /**
      * @var ?string $name Payment schedule name as configured by the institution (e.g. "Spring payment").
@@ -52,7 +55,7 @@ class PaymentScheduleV1 extends JsonSerializableType
     /**
      * @param array{
      *   object?: ?string,
-     *   id?: ?int,
+     *   id?: ?string,
      *   name?: ?string,
      *   paymentDate?: ?int,
      *   awardCycleIds?: ?array<string>,

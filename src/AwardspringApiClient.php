@@ -12,6 +12,8 @@ use Awardspring\Funds\FundsClient;
 use Awardspring\Gifts\GiftsClient;
 use Awardspring\PaymentSchedules\PaymentSchedulesClient;
 use Awardspring\People\PeopleClient;
+use Awardspring\ReviewGroups\ReviewGroupsClient;
+use Awardspring\ReviewerAssignments\ReviewerAssignmentsClient;
 use Awardspring\Reviewers\ReviewersClient;
 use Awardspring\Scholarships\ScholarshipsClient;
 use Awardspring\Students\StudentsClient;
@@ -71,6 +73,16 @@ class AwardspringApiClient
     public PeopleClient $people;
 
     /**
+     * @var ReviewGroupsClient $reviewGroups
+     */
+    public ReviewGroupsClient $reviewGroups;
+
+    /**
+     * @var ReviewerAssignmentsClient $reviewerAssignments
+     */
+    public ReviewerAssignmentsClient $reviewerAssignments;
+
+    /**
      * @var ReviewersClient $reviewers
      */
     public ReviewersClient $reviewers;
@@ -119,8 +131,8 @@ class AwardspringApiClient
             'X-Spring-API-Key' => $apiKey,
             'X-Fern-Language' => 'PHP',
             'X-Fern-SDK-Name' => 'Awardspring',
-            'X-Fern-SDK-Version' => '0.1.11',
-            'User-Agent' => 'awardspring/awardspring-php/0.1.11',
+            'X-Fern-SDK-Version' => '0.1.12',
+            'User-Agent' => 'awardspring/awardspring-php/0.1.12',
         ];
 
         $this->options = $options ?? [];
@@ -144,6 +156,8 @@ class AwardspringApiClient
         $this->gifts = new GiftsClient($this->client, $this->options);
         $this->paymentSchedules = new PaymentSchedulesClient($this->client, $this->options);
         $this->people = new PeopleClient($this->client, $this->options);
+        $this->reviewGroups = new ReviewGroupsClient($this->client, $this->options);
+        $this->reviewerAssignments = new ReviewerAssignmentsClient($this->client, $this->options);
         $this->reviewers = new ReviewersClient($this->client, $this->options);
         $this->scholarships = new ScholarshipsClient($this->client, $this->options);
         $this->students = new StudentsClient($this->client, $this->options);

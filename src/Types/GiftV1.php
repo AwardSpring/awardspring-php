@@ -33,31 +33,35 @@ class GiftV1 extends JsonSerializableType
     public ?string $donorId;
 
     /**
-     * @var ?string $type
+     * @var ?string $type `gift` for money already given, or `pledge` for money promised.
      */
     #[JsonProperty('type')]
     public ?string $type;
 
     /**
+     * How the gift was given: one of `None`, `Cash`, `Check`, `CreditOrDebit`,
+     * `BankTransfer`, `StockOrProperty`, `InKind`, `PayrollDeduction`, `Online` or
+     * `Other`. `None` when no payment type was recorded.
+     *
      * @var ?string $giftType
      */
     #[JsonProperty('gift_type')]
     public ?string $giftType;
 
     /**
-     * @var ?float $amount
+     * @var ?float $amount The amount given or pledged, or `null` when no amount was recorded.
      */
     #[JsonProperty('amount')]
     public ?float $amount;
 
     /**
-     * @var ?string $subject
+     * @var ?string $subject The short title of the gift or pledge.
      */
     #[JsonProperty('subject')]
     public ?string $subject;
 
     /**
-     * @var ?string $description
+     * @var ?string $description Longer notes about the gift or pledge, or `null`.
      */
     #[JsonProperty('description')]
     public ?string $description;
@@ -75,24 +79,27 @@ class GiftV1 extends JsonSerializableType
     public ?string $campaignId;
 
     /**
-     * @var ?bool $isCompleted
+     * @var ?bool $isCompleted For a pledge, whether it has been fulfilled.
      */
     #[JsonProperty('is_completed')]
     public ?bool $isCompleted;
 
     /**
-     * @var ?bool $giftAcknowledgementSent
+     * @var ?bool $giftAcknowledgementSent Whether a gift acknowledgement has been sent to the donor for this gift.
      */
     #[JsonProperty('gift_acknowledgement_sent')]
     public ?bool $giftAcknowledgementSent;
 
     /**
-     * @var ?int $date
+     * @var ?int $date The date of the gift or pledge, in the institution's local time zone (UTC epoch seconds on the wire).
      */
     #[JsonProperty('date')]
     public ?int $date;
 
     /**
+     * Up to three people or names credited for the gift besides the donor. An empty list when there are
+     * none.
+     *
      * @var ?array<SoftCreditV1> $softCredits
      */
     #[JsonProperty('soft_credits'), ArrayType([SoftCreditV1::class])]

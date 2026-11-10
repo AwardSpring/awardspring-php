@@ -30,6 +30,26 @@ class DonorActivityV1 extends JsonSerializableType
     public ?string $id;
 
     /**
+     * The stored ID of the donor the activity is with: the same value `donor_id` takes when an
+     * activity is created, and the `id` the donor has on the donor list.
+     *
+     * @var ?string $donorId
+     */
+    #[JsonProperty('donor_id')]
+    public ?string $donorId;
+
+    /**
+     * The donor's name as the donor list shows it: an organization's name for an organization,
+     * otherwise the donor's first and last name. Shown for an archived donor too. Null when the
+     * request is made as a signed-in user whose Donors permission is No access, or when the donor's
+     * record has no name.
+     *
+     * @var ?string $donorName
+     */
+    #[JsonProperty('donor_name')]
+    public ?string $donorName;
+
+    /**
      * @var ?value-of<DonorActivitySourceV1> $source
      */
     #[JsonProperty('source')]
@@ -58,6 +78,16 @@ class DonorActivityV1 extends JsonSerializableType
      */
     #[JsonProperty('date')]
     public ?int $date;
+
+    /**
+     * Where the meeting or call takes place: a room, an address or a call link (logged activities only).
+     * Null when no place was given, which includes every activity logged on the website; null for
+     * emails, text messages, awards and applications.
+     *
+     * @var ?string $place
+     */
+    #[JsonProperty('place')]
+    public ?string $place;
 
     /**
      * @var ?float $amount Monetary amount (logged monetary activities and awards); null otherwise.
@@ -111,11 +141,14 @@ class DonorActivityV1 extends JsonSerializableType
      * @param array{
      *   object?: ?string,
      *   id?: ?string,
+     *   donorId?: ?string,
+     *   donorName?: ?string,
      *   source?: ?value-of<DonorActivitySourceV1>,
      *   activityType?: ?string,
      *   subject?: ?string,
      *   description?: ?string,
      *   date?: ?int,
+     *   place?: ?string,
      *   amount?: ?float,
      *   fundId?: ?string,
      *   isCompleted?: ?bool,
@@ -131,11 +164,14 @@ class DonorActivityV1 extends JsonSerializableType
     ) {
         $this->object = $values['object'] ?? null;
         $this->id = $values['id'] ?? null;
+        $this->donorId = $values['donorId'] ?? null;
+        $this->donorName = $values['donorName'] ?? null;
         $this->source = $values['source'] ?? null;
         $this->activityType = $values['activityType'] ?? null;
         $this->subject = $values['subject'] ?? null;
         $this->description = $values['description'] ?? null;
         $this->date = $values['date'] ?? null;
+        $this->place = $values['place'] ?? null;
         $this->amount = $values['amount'] ?? null;
         $this->fundId = $values['fundId'] ?? null;
         $this->isCompleted = $values['isCompleted'] ?? null;
