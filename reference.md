@@ -67,7 +67,7 @@ $client->applications->list(
 <dl>
 <dd>
 
-**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -75,7 +75,7 @@ $client->applications->list(
 <dl>
 <dd>
 
-**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -166,7 +166,7 @@ name. Null/blank means no name filter.
 <dl>
 <dd>
 
-**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -174,7 +174,7 @@ name. Null/blank means no name filter.
 <dl>
 <dd>
 
-**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -372,7 +372,7 @@ $client->awards->list(
 <dl>
 <dd>
 
-**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -380,7 +380,7 @@ $client->awards->list(
 <dl>
 <dd>
 
-**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -466,7 +466,7 @@ $client->departments->list(
 <dl>
 <dd>
 
-**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -474,7 +474,7 @@ $client->departments->list(
 <dl>
 <dd>
 
-**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -641,7 +641,7 @@ $client->donorActivities->list(
 <dl>
 <dd>
 
-**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -649,7 +649,7 @@ $client->donorActivities->list(
 <dl>
 <dd>
 
-**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -687,7 +687,9 @@ email, a note, or a verbal pledge. Errors come back with a stable `code`, a read
 
 
 Supported activity types: `LoggedEmail`, `LoggedPhone`, `LoggedMeeting`, `LoggedNote`,
-`LoggedPledge`. Gifts are recorded through the Gifts endpoints instead.
+`LoggedPledge`. Gifts are recorded through the Gifts endpoints instead. A pledge for an archived donor,
+whether the account is archived or only its Donor role, returns `400 validation_failed`; restore the
+donor first. Other activity types are recorded for an archived donor.
 
 
 A typical use is working through a call list and logging each conversation as it ends, with the
@@ -957,8 +959,9 @@ Sort with `sort`. `name` lists donors A to Z, ignoring case: an organization by 
 organization name, and a person by last name, then first name. A person with no last name
 is listed by first name, and a donor with no name at all comes last. `last_contacted`
 lists the most recently contacted donors first, by `last_contacted_at`; donors who
-have never been contacted come last. Donors who tie are listed by `id`: lowest first
-for `name`, highest first for `last_contacted`.
+have never been contacted come last. `longest_since_contact` is the other way round: donors
+never contacted first, then the oldest contact. Donors who tie are listed by `id`: lowest
+first for `name` and `longest_since_contact`, highest first for `last_contacted`.
 
 
 Narrow the list with `level` to donors at one or more levels, for example
@@ -1000,6 +1003,28 @@ on every page: a cursor sent with a different `sort`, `level`, `giving_status`
 or `q` returns `400 invalid_cursor`. A search shorter than `2` characters, or an
 unknown `level`, `giving_status` or `sort`, returns `400 validation_failed`
 with `param` set to the parameter at fault.
+
+
+To keep a copy in sync, send `changed_since`, a time in UTC epoch seconds. The list then holds
+only the donors whose stored details changed at or after that time, in the order they changed,
+oldest change first, by `last_changed_at`. A new gift does not count as a change to its donor.
+Archiving or restoring a donor counts as a change: an archived donor stays in the list with
+`archived: true`, including one who is a donor only through an extra Donor role, and comes back
+with `archived: false` once restored. A donor removed since that time is listed too, at the time it was removed, with only
+`object`, `id`, `deleted: true` and `removed_at`. That includes a person who stops
+being a donor but keeps their account, for example when their Donor role is removed; their gifts are
+not removed with it. If that person becomes a donor again, the same `id` is listed again as a
+change, after its removal. A removed donor keeps no
+giving, so a list narrowed by `level` or `giving_status` leaves removals out: keep one
+sync with no other filter to learn of them. Every page carries `complete_up_to`, the same on
+every page of one walk; start the next sync from it. A donor may appear in two syncs in a row, but
+none is missed.
+
+`changed_since` works with `level` and `giving_status`. With `sort` or
+`q` it returns `400 validation_failed` with `param` naming the parameter it cannot
+be combined with. A time in the future, or anything but a whole number of seconds, returns
+`400 validation_failed` with `param` set to `changed_since`. A cursor sent with a
+different `changed_since` returns `400 invalid_cursor`.
 
 
 Assistant capability: `springiq_list_donors`. Required permission: Donors (applies when called on behalf of a signed-in person).
@@ -1083,8 +1108,27 @@ out for every donor, including those with no giving status.
 
 **$sort:** `?string` 
 
-The order to list donors in (`?sort=`): `name` or `last_contacted`. Leave it
-out for the default order. Any other value returns `400 validation_failed`.
+The order to list donors in (`?sort=`): `name`, `last_contacted` or
+`longest_since_contact`. Leave it out for the default order. Any other value returns
+`400 validation_failed`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**$changedSince:** `?int` 
+
+Only donors that changed at or after this time (`?changed_since=`), in UTC epoch seconds, such
+as `1767225600`. The list is then in the order the donors changed, oldest change first, and
+includes donors whose record was archived, marked `archived: true`. With no
+`level` or `giving_status`, it also lists each donor removed since that time, with only
+its `id`, `deleted` and `removed_at`, including a person who stops being a donor but
+keeps their account. Such a person who becomes a donor again is listed again, as a change after the
+removal, with the same `id`. Start the next sync from the list's
+`complete_up_to`. A time in the future, or anything but a whole number of seconds, returns
+`400 validation_failed`. It cannot be combined with `q` or `sort`.
     
 </dd>
 </dl>
@@ -1100,7 +1144,7 @@ out for the default order. Any other value returns `400 validation_failed`.
 <dl>
 <dd>
 
-**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -1108,7 +1152,7 @@ out for the default order. Any other value returns `400 validation_failed`.
 <dl>
 <dd>
 
-**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -1487,7 +1531,8 @@ $client->donors->get(
 <dd>
 
 Only the fields present in the request body change; anything omitted is left alone. Send
-`dry_run` to validate the request without saving it.
+`dry_run` to validate the request without saving it. `id` takes any donor
+`GET /api/v1/donors/{id}` returns, an archived one included; the donor stays archived.
 
 <b>Administrator accounts:</b> a program with an API key never changes an account that holds an
 administrator role. A donor who is also an administrator returns `400 validation_failed` naming
@@ -1764,7 +1809,8 @@ $client->donors->update(
 <dl>
 <dd>
 
-Replaces the donor's free-text notes. `id` is the donor's stored ID. Returns
+Replaces the donor's free-text notes. `id` is the donor's stored ID, and takes any donor
+`GET /api/v1/donors/{id}` returns, an archived one included. Returns
 `404 donor_not_found` naming `id` if no such donor belongs to this institution.
 
 <b>Administrator accounts:</b> a program with an API key never changes an account that holds an
@@ -1889,7 +1935,7 @@ $client->funds->list(
 <dl>
 <dd>
 
-**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -1897,7 +1943,7 @@ $client->funds->list(
 <dl>
 <dd>
 
-**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -1932,7 +1978,9 @@ $client->funds->list(
 
 Returns one page at a time. Without filters the list covers the whole
 institution. Narrow it with `donor_id` (a donor's stored ID) to scope to a single donor, `type` to
-return only gifts or only pledges, and `q` to search the subject and description.
+return only gifts or only pledges, and `q` to search the subject and description, the donor's
+name, organization or email, and the fund's name. `donor_id` takes any donor
+`GET /api/v1/donors/{id}` returns, an archived one included.
 
 
 With no `sort`, gifts are listed in the order they were recorded, earliest recorded first.
@@ -1945,6 +1993,26 @@ for `date_asc`.
 page: a cursor sent with a different `sort`, `donor_id`, `type` or `q` returns
 `400 invalid_cursor`. An unknown `sort` returns `400 validation_failed` with
 `param` set to `sort`.
+
+
+To keep a copy in sync, send `changed_since`, a time in UTC epoch seconds. The list then holds
+only the gifts and pledges that changed at or after that time, in the order they changed, oldest
+change first, by `last_changed_at`. A gift or pledge removed since that time is listed too, at
+the time it was removed, with only `object`, `id`, `deleted: true` and
+`removed_at`. A list narrowed by `donor_id` lists that donor's removed gifts and pledges. A
+removed gift keeps no type, so a list narrowed by `type` leaves removals out: keep one sync
+without `type` to learn of them. A gift or pledge that moved to another donor, or switched between
+gift and pledge, is listed the same way in a list narrowed by the `donor_id` or `type` it
+left, at the time it changed, unless it matches that list again by then; it stays live in every other
+list, and a list with neither filter never lists it removed. Every page carries `complete_up_to`, the same on every
+page of one walk; start the next sync from it. A gift may appear in two syncs in a row, but none is
+missed.
+
+`changed_since` works with `donor_id` and `type`. With `sort` or `q` it
+returns `400 validation_failed` with `param` naming the parameter it cannot be combined
+with. A time in the future, or anything but a whole number of seconds, returns
+`400 validation_failed` with `param` set to `changed_since`. A cursor sent with a
+different `changed_since` returns `400 invalid_cursor`.
 
 
 Assistant capability: `springiq_list_gifts`. Required permission: Donors (applies when called on behalf of a signed-in person).
@@ -1995,7 +2063,7 @@ $client->gifts->list(
 <dl>
 <dd>
 
-**$q:** `?string` — Free-text search (`?q=`): case-insensitive substring match on subject or description.
+**$q:** `?string` — Free-text search (`?q=`), case-insensitive: a substring of the subject or description, the start of words in the donor's name or organization (`mar ch` finds Margaret Chen's gifts), the start of the donor's email, or the start of words in the fund's name.
     
 </dd>
 </dl>
@@ -2015,6 +2083,23 @@ recorded in. Any other value returns `400 validation_failed`.
 <dl>
 <dd>
 
+**$changedSince:** `?int` 
+
+Only gifts and pledges that changed at or after this time (`?changed_since=`), in UTC epoch
+seconds, such as `1767225600`. The list is then in the order the gifts changed, oldest change
+first. With no `type`, it also lists each gift or pledge removed since that time, with only its
+`id`, `deleted` and `removed_at`; with `donor_id`, only that donor's. With
+`donor_id` or `type`, a gift or pledge that moved to another donor or switched between gift
+and pledge is listed that way too, at the time it changed, unless it matches the list again. Start the
+next sync from the list's `complete_up_to`. A time in the future, or anything but a whole number
+of seconds, returns `400 validation_failed`. It cannot be combined with `q` or `sort`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **$limit:** `?int` — Page size. Defaults to 25. Values outside 1–100 are clamped rather than rejected.
     
 </dd>
@@ -2023,7 +2108,7 @@ recorded in. Any other value returns `400 validation_failed`.
 <dl>
 <dd>
 
-**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -2031,7 +2116,7 @@ recorded in. Any other value returns `400 validation_failed`.
 <dl>
 <dd>
 
-**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -2158,7 +2243,7 @@ a zero amount is allowed only when GiftType is `InKind`.
 **$giftDate:** `?string` 
 
 ISO 8601 date the gift/pledge occurred (e.g. `"2026-04-03"` or `"2026-04-03T10:00:00Z"`).
-Required. Interpreted in the tenant's time zone and persisted in UTC.
+Required. A time with a zone (`Z` or an offset such as `-05:00`) is that exact moment; a date or time without a zone is the institution's own clock. Persisted in UTC. When the gift is read back, its date is the institution's own clock time (see the gift's `date` field), not a true UTC moment.
     
 </dd>
 </dl>
@@ -2498,7 +2583,7 @@ award cycle the institution does not have returns `404 award_cycle_not_found`. E
 <dl>
 <dd>
 
-**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -2506,7 +2591,7 @@ award cycle the institution does not have returns `404 award_cycle_not_found`. E
 <dl>
 <dd>
 
-**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -2745,7 +2830,7 @@ or `archived`.
 <dl>
 <dd>
 
-**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -2753,7 +2838,7 @@ or `archived`.
 <dl>
 <dd>
 
-**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -2838,7 +2923,7 @@ $client->reviewGroups->list(
 <dl>
 <dd>
 
-**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -2846,7 +2931,7 @@ $client->reviewGroups->list(
 <dl>
 <dd>
 
-**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -2981,7 +3066,7 @@ panel, and to list both panels of a group with two. A panel the group does not h
 <dl>
 <dd>
 
-**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -2989,7 +3074,7 @@ panel, and to list both panels of a group with two. A panel the group does not h
 <dl>
 <dd>
 
-**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -3296,7 +3381,7 @@ institution returns `404 assignment_job_not_found`.
 <dl>
 <dd>
 
-**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -3304,7 +3389,7 @@ institution returns `404 assignment_job_not_found`.
 <dl>
 <dd>
 
-**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -3507,7 +3592,7 @@ name. Null/blank means no name filter.
 <dl>
 <dd>
 
-**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -3515,7 +3600,7 @@ name. Null/blank means no name filter.
 <dl>
 <dd>
 
-**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -4155,7 +4240,7 @@ $client->scholarships->listAvailableDollars(
 <dl>
 <dd>
 
-**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -4163,7 +4248,7 @@ $client->scholarships->listAvailableDollars(
 <dl>
 <dd>
 
-**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -4320,7 +4405,7 @@ $client->scholarships->listAwardedStudents(
 <dl>
 <dd>
 
-**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -4328,7 +4413,7 @@ $client->scholarships->listAwardedStudents(
 <dl>
 <dd>
 
-**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -4426,7 +4511,7 @@ match. Student numbers are not guaranteed unique, so this can return more than o
 <dl>
 <dd>
 
-**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+**$startingAfter:** `?string` — Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>
@@ -4434,7 +4519,7 @@ match. Student numbers are not guaranteed unique, so this can return more than o
 <dl>
 <dd>
 
-**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+**$endingBefore:** `?string` — Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
     
 </dd>
 </dl>

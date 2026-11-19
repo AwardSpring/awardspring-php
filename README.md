@@ -13,6 +13,7 @@ The Awardspring PHP library provides convenient access to the Awardspring APIs f
 - [Usage](#usage)
 - [Environments](#environments)
 - [Exception Handling](#exception-handling)
+- [Pagination](#pagination)
 - [Advanced](#advanced)
   - [Custom Client](#custom-client)
   - [Retries](#retries)
@@ -782,6 +783,35 @@ try {
     // Optionally, rethrow the exception or handle accordingly.
 }
 ```
+
+## Pagination
+
+List endpoints return a `Pager<T>` which lets you loop over all items and the SDK will automatically make multiple HTTP requests for you.
+
+```php
+use Awardspring\AwardspringApiClient;
+
+$client = new AwardspringApiClient(
+    '<YOUR_TOKEN>',
+    ['baseUrl' => 'https://api.example.com'],
+);
+
+$items = $client->applications->list(['limit' => 10]);
+
+foreach ($items as $item) {
+    var_dump($item);
+}
+```
+You can also iterate page-by-page:
+
+```php
+foreach ($items->getPages() as $page) {
+    foreach ($page->getItems() as $pageItem) {
+        var_dump($pageItem);
+    }
+}
+```
+
 
 ## Advanced
 

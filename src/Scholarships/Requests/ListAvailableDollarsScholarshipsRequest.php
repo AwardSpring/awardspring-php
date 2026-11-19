@@ -18,12 +18,12 @@ class ListAvailableDollarsScholarshipsRequest extends JsonSerializableType
     public ?int $limit;
 
     /**
-     * @var ?string $startingAfter Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+     * @var ?string $startingAfter Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
      */
     public ?string $startingAfter;
 
     /**
-     * @var ?string $endingBefore Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+     * @var ?string $endingBefore Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
      */
     public ?string $endingBefore;
 

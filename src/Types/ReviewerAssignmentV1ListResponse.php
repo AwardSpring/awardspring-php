@@ -66,24 +66,36 @@ class ReviewerAssignmentV1ListResponse extends JsonSerializableType
     public ?int $totalCount;
 
     /**
-     * @var ?array<ReviewerAssignmentV1> $data The page of items.
+     * Present only on a list requested with `changed_since`: the time this answer is complete up
+     * to, in UTC epoch seconds. Every change made before it is in the list, and a change made at or
+     * after it is not. Every page of one walk carries the same value. Start the next sync with
+     * `changed_since` set to it. Otherwise the key is omitted.
+     *
+     * @var ?int $completeUpTo
+     */
+    #[JsonProperty('complete_up_to')]
+    public ?int $completeUpTo;
+
+    /**
+     * @var array<ReviewerAssignmentV1> $data The page of items.
      */
     #[JsonProperty('data'), ArrayType([ReviewerAssignmentV1::class])]
-    public ?array $data;
+    public array $data;
 
     /**
      * @param array{
+     *   data: array<ReviewerAssignmentV1>,
      *   object?: ?string,
      *   url?: ?string,
      *   hasMore?: ?bool,
      *   nextCursor?: ?string,
      *   previousCursor?: ?string,
      *   totalCount?: ?int,
-     *   data?: ?array<ReviewerAssignmentV1>,
+     *   completeUpTo?: ?int,
      * } $values
      */
     public function __construct(
-        array $values = [],
+        array $values,
     ) {
         $this->object = $values['object'] ?? null;
         $this->url = $values['url'] ?? null;
@@ -91,7 +103,8 @@ class ReviewerAssignmentV1ListResponse extends JsonSerializableType
         $this->nextCursor = $values['nextCursor'] ?? null;
         $this->previousCursor = $values['previousCursor'] ?? null;
         $this->totalCount = $values['totalCount'] ?? null;
-        $this->data = $values['data'] ?? null;
+        $this->completeUpTo = $values['completeUpTo'] ?? null;
+        $this->data = $values['data'];
     }
 
     /**

@@ -6,4 +6,5 @@ enum ListDonorsRequestSort: string
 {
     case Name = "name";
     case LastContacted = "last_contacted";
+    case LongestSinceContact = "longest_since_contact";
 }

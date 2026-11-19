@@ -43,6 +43,18 @@ class DonorDetailV1 extends JsonSerializableType
     public ?array $customFields;
 
     /**
+     * The kinds of email this donor is opted out of: by their own unsubscribe or spam complaint, by the institution,
+     * or by the platform after their address bounced, as AwardSpring's donor page shows them. Each is one of
+     * `campaign`, `newsletter`, `event_invitations` or `giving_renewal_asks`; more may be
+     * added, so ignore a value you do not recognize. Receipts, thank-you letters and impact reports are always
+     * sent and never appear. Empty when the donor has opted out of nothing.
+     *
+     * @var ?array<string> $emailOptOuts
+     */
+    #[JsonProperty('email_opt_outs'), ArrayType(['string'])]
+    public ?array $emailOptOuts;
+
+    /**
      * The donor's stored ID: 9 characters, sent exactly as stored. A dry-run create returns
      * `null`, because no donor was saved.
      *
@@ -83,6 +95,19 @@ class DonorDetailV1 extends JsonSerializableType
      */
     #[JsonProperty('role')]
     public ?string $role;
+
+    /**
+     * Whether the donor's record is archived, the way AwardSpring shows it. `true` when the
+     * account is not active, or when the person is a donor only through an extra Donor role and that role
+     * is archived; `false` for an active donor, and again once the donor is restored. Archiving and
+     * restoring each move `last_changed_at`, so a donors list requested with `changed_since`
+     * lists an archived donor marked `true` and a restored one marked `false`; archiving never
+     * removes a donor from that list.
+     *
+     * @var ?bool $archived
+     */
+    #[JsonProperty('archived')]
+    public ?bool $archived;
 
     /**
      * @var ?int $dateOfBirth
@@ -253,17 +278,33 @@ class DonorDetailV1 extends JsonSerializableType
     public ?bool $includeSoftCredits;
 
     /**
+     * When anything stored on the donor that the API returns last changed, in UTC epoch seconds: their
+     * name, contact details, profile, whether their donor record is archived, the tags on them, their answers
+     * to the school's donor custom fields, or which kinds of email they are opted out of. Renaming a tag, a
+     * custom field or one of its choices does not count, because it changes the school's list, not the
+     * donor. Adding the donor counts as
+     * a change; their gifts and pledges do not. Null only on a dry-run create, because no donor was saved.
+     * Use it with the donors list's `changed_since` to pick up only the donors that changed.
+     *
+     * @var ?int $lastChangedAt
+     */
+    #[JsonProperty('last_changed_at')]
+    public ?int $lastChangedAt;
+
+    /**
      * @param array{
      *   object?: ?string,
      *   quickStats?: ?DonorQuickStatsV1,
      *   tags?: ?array<string>,
      *   customFields?: ?array<DonorCustomFieldV1>,
+     *   emailOptOuts?: ?array<string>,
      *   id?: ?string,
      *   firstName?: ?string,
      *   lastName?: ?string,
      *   email?: ?string,
      *   phone?: ?string,
      *   role?: ?value-of<DonorDetailV1Role>,
+     *   archived?: ?bool,
      *   dateOfBirth?: ?int,
      *   birthMonth?: ?string,
      *   birthDay?: ?int,
@@ -292,6 +333,7 @@ class DonorDetailV1 extends JsonSerializableType
      *   description?: ?string,
      *   notes?: ?string,
      *   includeSoftCredits?: ?bool,
+     *   lastChangedAt?: ?int,
      * } $values
      */
     public function __construct(
@@ -301,12 +343,14 @@ class DonorDetailV1 extends JsonSerializableType
         $this->quickStats = $values['quickStats'] ?? null;
         $this->tags = $values['tags'] ?? null;
         $this->customFields = $values['customFields'] ?? null;
+        $this->emailOptOuts = $values['emailOptOuts'] ?? null;
         $this->id = $values['id'] ?? null;
         $this->firstName = $values['firstName'] ?? null;
         $this->lastName = $values['lastName'] ?? null;
         $this->email = $values['email'] ?? null;
         $this->phone = $values['phone'] ?? null;
         $this->role = $values['role'] ?? null;
+        $this->archived = $values['archived'] ?? null;
         $this->dateOfBirth = $values['dateOfBirth'] ?? null;
         $this->birthMonth = $values['birthMonth'] ?? null;
         $this->birthDay = $values['birthDay'] ?? null;
@@ -335,6 +379,7 @@ class DonorDetailV1 extends JsonSerializableType
         $this->description = $values['description'] ?? null;
         $this->notes = $values['notes'] ?? null;
         $this->includeSoftCredits = $values['includeSoftCredits'] ?? null;
+        $this->lastChangedAt = $values['lastChangedAt'] ?? null;
     }
 
     /**

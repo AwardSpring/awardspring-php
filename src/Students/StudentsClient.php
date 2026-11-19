@@ -5,7 +5,11 @@ namespace Awardspring\Students;
 use Psr\Http\Client\ClientInterface;
 use Awardspring\Core\Client\RawClient;
 use Awardspring\Students\Requests\ListStudentsRequest;
+use Awardspring\Core\Pagination\Pager;
+use Awardspring\Types\StudentV1;
+use Awardspring\Core\Pagination\CursorPager;
 use Awardspring\Types\StudentV1ListResponse;
+use Awardspring\Students\Requests\CreateStudentV1Request;
 use Awardspring\Exceptions\AwardspringException;
 use Awardspring\Exceptions\AwardspringApiException;
 use Awardspring\Core\Json\JsonApiRequest;
@@ -13,8 +17,6 @@ use Awardspring\Environments;
 use Awardspring\Core\Client\HttpMethod;
 use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
-use Awardspring\Students\Requests\CreateStudentV1Request;
-use Awardspring\Types\StudentV1;
 use Awardspring\Students\Requests\UpdateStudentV1Request;
 
 class StudentsClient
@@ -78,59 +80,20 @@ class StudentsClient
      *   queryParameters?: array<string, mixed>,
      *   bodyProperties?: array<string, mixed>,
      * } $options
-     * @return ?StudentV1ListResponse
-     * @throws AwardspringException
-     * @throws AwardspringApiException
+     * @return Pager<StudentV1>
      */
-    public function list(ListStudentsRequest $request = new ListStudentsRequest(), ?array $options = null): ?StudentV1ListResponse
+    public function list(ListStudentsRequest $request = new ListStudentsRequest(), ?array $options = null): Pager
     {
-        $options = array_merge($this->options, $options ?? []);
-        $query = [];
-        if ($request->q != null) {
-            $query['q'] = $request->q;
-        }
-        if ($request->studentId != null) {
-            $query['student_id'] = $request->studentId;
-        }
-        if ($request->limit != null) {
-            $query['limit'] = $request->limit;
-        }
-        if ($request->startingAfter != null) {
-            $query['starting_after'] = $request->startingAfter;
-        }
-        if ($request->endingBefore != null) {
-            $query['ending_before'] = $request->endingBefore;
-        }
-        if ($request->include != null) {
-            $query['include'] = $request->include;
-        }
-        try {
-            $response = $this->client->sendRequest(
-                new JsonApiRequest(
-                    baseUrl: $options['baseUrl'] ?? $this->client->options['baseUrl'] ?? Environments::UnitedStates->value,
-                    path: "api/v1/students",
-                    method: HttpMethod::GET,
-                    query: $query,
-                ),
-                $options,
-            );
-            $statusCode = $response->getStatusCode();
-            if ($statusCode >= 200 && $statusCode < 400) {
-                $json = $response->getBody()->getContents();
-                if (empty($json)) {
-                    return null;
-                }
-                return StudentV1ListResponse::fromJson($json);
-            }
-        } catch (JsonException $e) {
-            throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);
-        } catch (ClientExceptionInterface $e) {
-            throw new AwardspringException(message: $e->getMessage(), previous: $e);
-        }
-        throw new AwardspringApiException(
-            message: 'API request failed',
-            statusCode: $statusCode,
-            body: $response->getBody()->getContents(),
+        return new CursorPager(
+            request: $request,
+            getNextPage: fn (ListStudentsRequest $request) => $this->_list($request, $options),
+            setCursor: function (ListStudentsRequest $request, ?string $cursor) {
+                $request->startingAfter = $cursor;
+            },
+            /* @phpstan-ignore-next-line */
+            getNextCursor: fn (?StudentV1ListResponse $response) => $response?->nextCursor ?? null,
+            /* @phpstan-ignore-next-line */
+            getItems: fn (?StudentV1ListResponse $response) => $response?->data ?? [],
         );
     }
 
@@ -353,6 +316,80 @@ class StudentsClient
                     return null;
                 }
                 return StudentV1::fromJson($json);
+            }
+        } catch (JsonException $e) {
+            throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);
+        } catch (ClientExceptionInterface $e) {
+            throw new AwardspringException(message: $e->getMessage(), previous: $e);
+        }
+        throw new AwardspringApiException(
+            message: 'API request failed',
+            statusCode: $statusCode,
+            body: $response->getBody()->getContents(),
+        );
+    }
+
+    /**
+     * Returns one page at a time, covering every student account at the institution — both
+     * registered and prospective. Search with `q`: it splits on spaces and matches each
+     * term against first name, last name, or email. Filter with `student_id` to look a
+     * student up by the number the institution assigned; numbers are not guaranteed unique, so
+     * the match can return more than one student.
+     *
+     * Assistant capability: `springiq_list_students`. Required permission: Users (applies when called on behalf of a signed-in person).
+     *
+     * @param ListStudentsRequest $request
+     * @param ?array{
+     *   baseUrl?: string,
+     *   maxRetries?: int,
+     *   timeout?: float,
+     *   headers?: array<string, string>,
+     *   queryParameters?: array<string, mixed>,
+     *   bodyProperties?: array<string, mixed>,
+     * } $options
+     * @return ?StudentV1ListResponse
+     * @throws AwardspringException
+     * @throws AwardspringApiException
+     */
+    private function _list(ListStudentsRequest $request = new ListStudentsRequest(), ?array $options = null): ?StudentV1ListResponse
+    {
+        $options = array_merge($this->options, $options ?? []);
+        $query = [];
+        if ($request->q != null) {
+            $query['q'] = $request->q;
+        }
+        if ($request->studentId != null) {
+            $query['student_id'] = $request->studentId;
+        }
+        if ($request->limit != null) {
+            $query['limit'] = $request->limit;
+        }
+        if ($request->startingAfter != null) {
+            $query['starting_after'] = $request->startingAfter;
+        }
+        if ($request->endingBefore != null) {
+            $query['ending_before'] = $request->endingBefore;
+        }
+        if ($request->include != null) {
+            $query['include'] = $request->include;
+        }
+        try {
+            $response = $this->client->sendRequest(
+                new JsonApiRequest(
+                    baseUrl: $options['baseUrl'] ?? $this->client->options['baseUrl'] ?? Environments::UnitedStates->value,
+                    path: "api/v1/students",
+                    method: HttpMethod::GET,
+                    query: $query,
+                ),
+                $options,
+            );
+            $statusCode = $response->getStatusCode();
+            if ($statusCode >= 200 && $statusCode < 400) {
+                $json = $response->getBody()->getContents();
+                if (empty($json)) {
+                    return null;
+                }
+                return StudentV1ListResponse::fromJson($json);
             }
         } catch (JsonException $e) {
             throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);

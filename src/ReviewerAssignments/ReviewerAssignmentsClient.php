@@ -5,7 +5,12 @@ namespace Awardspring\ReviewerAssignments;
 use Psr\Http\Client\ClientInterface;
 use Awardspring\Core\Client\RawClient;
 use Awardspring\ReviewerAssignments\Requests\ListReviewerAssignmentsRequest;
+use Awardspring\Core\Pagination\Pager;
+use Awardspring\Types\ReviewerAssignmentV1;
+use Awardspring\Core\Pagination\CursorPager;
 use Awardspring\Types\ReviewerAssignmentV1ListResponse;
+use Awardspring\ReviewerAssignments\Requests\ChangeReviewerAssignmentsV1Request;
+use Awardspring\Types\ChangeReviewerAssignmentsV1Result;
 use Awardspring\Exceptions\AwardspringException;
 use Awardspring\Exceptions\AwardspringApiException;
 use Awardspring\Core\Json\JsonApiRequest;
@@ -13,10 +18,9 @@ use Awardspring\Environments;
 use Awardspring\Core\Client\HttpMethod;
 use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
-use Awardspring\ReviewerAssignments\Requests\ChangeReviewerAssignmentsV1Request;
-use Awardspring\Types\ChangeReviewerAssignmentsV1Result;
 use Awardspring\Types\ReviewerAssignmentJobV1;
 use Awardspring\ReviewerAssignments\Requests\ListJobRowsReviewerAssignmentsRequest;
+use Awardspring\Types\ReviewerAssignmentJobRowV1;
 use Awardspring\Types\ReviewerAssignmentJobRowV1ListResponse;
 
 class ReviewerAssignmentsClient
@@ -88,65 +92,20 @@ class ReviewerAssignmentsClient
      *   queryParameters?: array<string, mixed>,
      *   bodyProperties?: array<string, mixed>,
      * } $options
-     * @return ?ReviewerAssignmentV1ListResponse
-     * @throws AwardspringException
-     * @throws AwardspringApiException
+     * @return Pager<ReviewerAssignmentV1>
      */
-    public function list(ListReviewerAssignmentsRequest $request = new ListReviewerAssignmentsRequest(), ?array $options = null): ?ReviewerAssignmentV1ListResponse
+    public function list(ListReviewerAssignmentsRequest $request = new ListReviewerAssignmentsRequest(), ?array $options = null): Pager
     {
-        $options = array_merge($this->options, $options ?? []);
-        $query = [];
-        if ($request->reviewGroupId != null) {
-            $query['review_group_id'] = $request->reviewGroupId;
-        }
-        if ($request->reviewGroupName != null) {
-            $query['review_group_name'] = $request->reviewGroupName;
-        }
-        if ($request->awardCycleId != null) {
-            $query['award_cycle_id'] = $request->awardCycleId;
-        }
-        if ($request->panel != null) {
-            $query['panel'] = $request->panel;
-        }
-        if ($request->limit != null) {
-            $query['limit'] = $request->limit;
-        }
-        if ($request->startingAfter != null) {
-            $query['starting_after'] = $request->startingAfter;
-        }
-        if ($request->endingBefore != null) {
-            $query['ending_before'] = $request->endingBefore;
-        }
-        if ($request->include != null) {
-            $query['include'] = $request->include;
-        }
-        try {
-            $response = $this->client->sendRequest(
-                new JsonApiRequest(
-                    baseUrl: $options['baseUrl'] ?? $this->client->options['baseUrl'] ?? Environments::UnitedStates->value,
-                    path: "api/v1/reviewer-assignments",
-                    method: HttpMethod::GET,
-                    query: $query,
-                ),
-                $options,
-            );
-            $statusCode = $response->getStatusCode();
-            if ($statusCode >= 200 && $statusCode < 400) {
-                $json = $response->getBody()->getContents();
-                if (empty($json)) {
-                    return null;
-                }
-                return ReviewerAssignmentV1ListResponse::fromJson($json);
-            }
-        } catch (JsonException $e) {
-            throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);
-        } catch (ClientExceptionInterface $e) {
-            throw new AwardspringException(message: $e->getMessage(), previous: $e);
-        }
-        throw new AwardspringApiException(
-            message: 'API request failed',
-            statusCode: $statusCode,
-            body: $response->getBody()->getContents(),
+        return new CursorPager(
+            request: $request,
+            getNextPage: fn (ListReviewerAssignmentsRequest $request) => $this->_list($request, $options),
+            setCursor: function (ListReviewerAssignmentsRequest $request, ?string $cursor) {
+                $request->startingAfter = $cursor;
+            },
+            /* @phpstan-ignore-next-line */
+            getNextCursor: fn (?ReviewerAssignmentV1ListResponse $response) => $response?->nextCursor ?? null,
+            /* @phpstan-ignore-next-line */
+            getItems: fn (?ReviewerAssignmentV1ListResponse $response) => $response?->data ?? [],
         );
     }
 
@@ -334,11 +293,138 @@ class ReviewerAssignmentsClient
      *   queryParameters?: array<string, mixed>,
      *   bodyProperties?: array<string, mixed>,
      * } $options
+     * @return Pager<ReviewerAssignmentJobRowV1>
+     */
+    public function listJobRows(ListJobRowsReviewerAssignmentsRequest $request = new ListJobRowsReviewerAssignmentsRequest(), ?array $options = null): Pager
+    {
+        return new CursorPager(
+            request: $request,
+            getNextPage: fn (ListJobRowsReviewerAssignmentsRequest $request) => $this->_listJobRows($request, $options),
+            setCursor: function (ListJobRowsReviewerAssignmentsRequest $request, ?string $cursor) {
+                $request->startingAfter = $cursor;
+            },
+            /* @phpstan-ignore-next-line */
+            getNextCursor: fn (?ReviewerAssignmentJobRowV1ListResponse $response) => $response?->nextCursor ?? null,
+            /* @phpstan-ignore-next-line */
+            getItems: fn (?ReviewerAssignmentJobRowV1ListResponse $response) => $response?->data ?? [],
+        );
+    }
+
+    /**
+     * Returns one row per pair, as the Reviewer Assignment tab shows them, in the standard list envelope. Each row
+     * has the group's name and award cycle, the panel number on a group with two panels, and the reviewer and the
+     * applicant with name, email and stored ID. Rows are ordered by panel, then reviewer, then applicant.
+     *
+     *
+     * Name the group by `review_group_id`, its stored ID, or by `review_group_name`, optionally with
+     * `award_cycle_id`; leaving both out returns `400 validation_failed`. A group that does not exist at
+     * your institution, including one from another institution, returns `404 review_group_not_found`, and so
+     * does a name that fits no group. A name that fits more than one group returns `400 validation_failed`
+     * naming each. Leave `panel` out to list every panel; send `panel` to list one. A panel the group
+     * does not have returns `404 review_group_panel_not_found`. Send the same filters on every page: they are
+     * recorded in the cursor, and a page request whose filters do not match the cursor's is refused.
+     *
+     *
+     * Assistant capability: `springiq_list_reviewer_assignments`.
+     *
+     * @param ListReviewerAssignmentsRequest $request
+     * @param ?array{
+     *   baseUrl?: string,
+     *   maxRetries?: int,
+     *   timeout?: float,
+     *   headers?: array<string, string>,
+     *   queryParameters?: array<string, mixed>,
+     *   bodyProperties?: array<string, mixed>,
+     * } $options
+     * @return ?ReviewerAssignmentV1ListResponse
+     * @throws AwardspringException
+     * @throws AwardspringApiException
+     */
+    private function _list(ListReviewerAssignmentsRequest $request = new ListReviewerAssignmentsRequest(), ?array $options = null): ?ReviewerAssignmentV1ListResponse
+    {
+        $options = array_merge($this->options, $options ?? []);
+        $query = [];
+        if ($request->reviewGroupId != null) {
+            $query['review_group_id'] = $request->reviewGroupId;
+        }
+        if ($request->reviewGroupName != null) {
+            $query['review_group_name'] = $request->reviewGroupName;
+        }
+        if ($request->awardCycleId != null) {
+            $query['award_cycle_id'] = $request->awardCycleId;
+        }
+        if ($request->panel != null) {
+            $query['panel'] = $request->panel;
+        }
+        if ($request->limit != null) {
+            $query['limit'] = $request->limit;
+        }
+        if ($request->startingAfter != null) {
+            $query['starting_after'] = $request->startingAfter;
+        }
+        if ($request->endingBefore != null) {
+            $query['ending_before'] = $request->endingBefore;
+        }
+        if ($request->include != null) {
+            $query['include'] = $request->include;
+        }
+        try {
+            $response = $this->client->sendRequest(
+                new JsonApiRequest(
+                    baseUrl: $options['baseUrl'] ?? $this->client->options['baseUrl'] ?? Environments::UnitedStates->value,
+                    path: "api/v1/reviewer-assignments",
+                    method: HttpMethod::GET,
+                    query: $query,
+                ),
+                $options,
+            );
+            $statusCode = $response->getStatusCode();
+            if ($statusCode >= 200 && $statusCode < 400) {
+                $json = $response->getBody()->getContents();
+                if (empty($json)) {
+                    return null;
+                }
+                return ReviewerAssignmentV1ListResponse::fromJson($json);
+            }
+        } catch (JsonException $e) {
+            throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);
+        } catch (ClientExceptionInterface $e) {
+            throw new AwardspringException(message: $e->getMessage(), previous: $e);
+        }
+        throw new AwardspringApiException(
+            message: 'API request failed',
+            statusCode: $statusCode,
+            body: $response->getBody()->getContents(),
+        );
+    }
+
+    /**
+     * Returns a background request's rows in request order, in the standard list envelope, each with what has
+     * happened to it so far: `waiting` until the job reaches it, then `applied`, `rejected` or
+     * `failed` with a `message` saying why. A row an all-or-nothing job never reached, because a pair
+     * failed its final check, stays `waiting`. When a job stops for any other reason, such as the API key
+     * losing its write access or the job being unable to finish, a row it did not change is `rejected`
+     * with a `message` saying why, and a row whose pair already stands as asked is `applied`. Pairs a
+     * `replace` removes because the request leaves them out come after the
+     * request's own rows and have no `index`.
+     *
+     * `job_id` is required and is the job's code from its `status_url`. A code that names no job at your
+     * institution, including another institution's, returns `404 assignment_job_not_found`.
+     *
+     * @param ListJobRowsReviewerAssignmentsRequest $request
+     * @param ?array{
+     *   baseUrl?: string,
+     *   maxRetries?: int,
+     *   timeout?: float,
+     *   headers?: array<string, string>,
+     *   queryParameters?: array<string, mixed>,
+     *   bodyProperties?: array<string, mixed>,
+     * } $options
      * @return ?ReviewerAssignmentJobRowV1ListResponse
      * @throws AwardspringException
      * @throws AwardspringApiException
      */
-    public function listJobRows(ListJobRowsReviewerAssignmentsRequest $request = new ListJobRowsReviewerAssignmentsRequest(), ?array $options = null): ?ReviewerAssignmentJobRowV1ListResponse
+    private function _listJobRows(ListJobRowsReviewerAssignmentsRequest $request = new ListJobRowsReviewerAssignmentsRequest(), ?array $options = null): ?ReviewerAssignmentJobRowV1ListResponse
     {
         $options = array_merge($this->options, $options ?? []);
         $query = [];

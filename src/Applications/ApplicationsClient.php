@@ -5,6 +5,9 @@ namespace Awardspring\Applications;
 use Psr\Http\Client\ClientInterface;
 use Awardspring\Core\Client\RawClient;
 use Awardspring\Applications\Requests\ListApplicationsRequest;
+use Awardspring\Core\Pagination\Pager;
+use Awardspring\Types\ApplicationV1;
+use Awardspring\Core\Pagination\CursorPager;
 use Awardspring\Types\ApplicationV1ListResponse;
 use Awardspring\Exceptions\AwardspringException;
 use Awardspring\Exceptions\AwardspringApiException;
@@ -76,11 +79,47 @@ class ApplicationsClient
      *   queryParameters?: array<string, mixed>,
      *   bodyProperties?: array<string, mixed>,
      * } $options
+     * @return Pager<ApplicationV1>
+     */
+    public function list(ListApplicationsRequest $request = new ListApplicationsRequest(), ?array $options = null): Pager
+    {
+        return new CursorPager(
+            request: $request,
+            getNextPage: fn (ListApplicationsRequest $request) => $this->_list($request, $options),
+            setCursor: function (ListApplicationsRequest $request, ?string $cursor) {
+                $request->startingAfter = $cursor;
+            },
+            /* @phpstan-ignore-next-line */
+            getNextCursor: fn (?ApplicationV1ListResponse $response) => $response?->nextCursor ?? null,
+            /* @phpstan-ignore-next-line */
+            getItems: fn (?ApplicationV1ListResponse $response) => $response?->data ?? [],
+        );
+    }
+
+    /**
+     * Returns one page at a time. Each row names the scholarship and award cycle it belongs to,
+     * and carries a `status` of `applied`, `awarded`, or `denied`. Without
+     * filters the list covers the whole institution; narrow it with `user_id` (a
+     * student's `id` from the Students endpoints) to scope to a single student. Returns
+     * `404 student_not_found`, naming `user_id` in `param`, when the `user_id` is not
+     * a student at this institution.
+     *
+     * Assistant capability: `springiq_list_student_applications`. Required permission: Users (applies when called on behalf of a signed-in person).
+     *
+     * @param ListApplicationsRequest $request
+     * @param ?array{
+     *   baseUrl?: string,
+     *   maxRetries?: int,
+     *   timeout?: float,
+     *   headers?: array<string, string>,
+     *   queryParameters?: array<string, mixed>,
+     *   bodyProperties?: array<string, mixed>,
+     * } $options
      * @return ?ApplicationV1ListResponse
      * @throws AwardspringException
      * @throws AwardspringApiException
      */
-    public function list(ListApplicationsRequest $request = new ListApplicationsRequest(), ?array $options = null): ?ApplicationV1ListResponse
+    private function _list(ListApplicationsRequest $request = new ListApplicationsRequest(), ?array $options = null): ?ApplicationV1ListResponse
     {
         $options = array_merge($this->options, $options ?? []);
         $query = [];

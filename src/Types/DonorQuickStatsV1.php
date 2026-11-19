@@ -59,6 +59,21 @@ class DonorQuickStatsV1 extends JsonSerializableType
     public ?bool $includeSoftCredits;
 
     /**
+     * What the gifts other donors made that credit this donor add up to, less anything refunded. Separate from
+     * `lifetime_total`, which takes in soft credits only when `include_soft_credits` is on.
+     *
+     * @var ?float $softCreditTotal
+     */
+    #[JsonProperty('soft_credit_total')]
+    public ?float $softCreditTotal;
+
+    /**
+     * @var ?int $softCreditCount The number of gifts other donors made that credit this donor, refunded ones included.
+     */
+    #[JsonProperty('soft_credit_count')]
+    public ?int $softCreditCount;
+
+    /**
      * @param array{
      *   object?: ?string,
      *   lifetimeTotal?: ?float,
@@ -68,6 +83,8 @@ class DonorQuickStatsV1 extends JsonSerializableType
      *   lastGift?: ?float,
      *   lastGiftDate?: ?int,
      *   includeSoftCredits?: ?bool,
+     *   softCreditTotal?: ?float,
+     *   softCreditCount?: ?int,
      * } $values
      */
     public function __construct(
@@ -81,6 +98,8 @@ class DonorQuickStatsV1 extends JsonSerializableType
         $this->lastGift = $values['lastGift'] ?? null;
         $this->lastGiftDate = $values['lastGiftDate'] ?? null;
         $this->includeSoftCredits = $values['includeSoftCredits'] ?? null;
+        $this->softCreditTotal = $values['softCreditTotal'] ?? null;
+        $this->softCreditCount = $values['softCreditCount'] ?? null;
     }
 
     /**

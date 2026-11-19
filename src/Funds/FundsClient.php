@@ -5,6 +5,9 @@ namespace Awardspring\Funds;
 use Psr\Http\Client\ClientInterface;
 use Awardspring\Core\Client\RawClient;
 use Awardspring\Funds\Requests\ListFundsRequest;
+use Awardspring\Core\Pagination\Pager;
+use Awardspring\Types\FundListItemV1;
+use Awardspring\Core\Pagination\CursorPager;
 use Awardspring\Types\FundListItemV1ListResponse;
 use Awardspring\Exceptions\AwardspringException;
 use Awardspring\Exceptions\AwardspringApiException;
@@ -75,11 +78,46 @@ class FundsClient
      *   queryParameters?: array<string, mixed>,
      *   bodyProperties?: array<string, mixed>,
      * } $options
+     * @return Pager<FundListItemV1>
+     */
+    public function list(ListFundsRequest $request = new ListFundsRequest(), ?array $options = null): Pager
+    {
+        return new CursorPager(
+            request: $request,
+            getNextPage: fn (ListFundsRequest $request) => $this->_list($request, $options),
+            setCursor: function (ListFundsRequest $request, ?string $cursor) {
+                $request->startingAfter = $cursor;
+            },
+            /* @phpstan-ignore-next-line */
+            getNextCursor: fn (?FundListItemV1ListResponse $response) => $response?->nextCursor ?? null,
+            /* @phpstan-ignore-next-line */
+            getItems: fn (?FundListItemV1ListResponse $response) => $response?->data ?? [],
+        );
+    }
+
+    /**
+     * Returns the funds belonging to the institution your API key is issued for, in the standard list envelope
+     * (`object: "list"`, `has_more`, `next_cursor`, `previous_cursor`,
+     * `data`). Page forward by passing the returned `next_cursor` as
+     * `starting_after`. Filter with `?q=` (case-insensitive substring match on the
+     * fund name).
+     *
+     * Assistant capability: `springiq_list_funds`. Required permission: Funds (applies when called on behalf of a signed-in person).
+     *
+     * @param ListFundsRequest $request
+     * @param ?array{
+     *   baseUrl?: string,
+     *   maxRetries?: int,
+     *   timeout?: float,
+     *   headers?: array<string, string>,
+     *   queryParameters?: array<string, mixed>,
+     *   bodyProperties?: array<string, mixed>,
+     * } $options
      * @return ?FundListItemV1ListResponse
      * @throws AwardspringException
      * @throws AwardspringApiException
      */
-    public function list(ListFundsRequest $request = new ListFundsRequest(), ?array $options = null): ?FundListItemV1ListResponse
+    private function _list(ListFundsRequest $request = new ListFundsRequest(), ?array $options = null): ?FundListItemV1ListResponse
     {
         $options = array_merge($this->options, $options ?? []);
         $query = [];

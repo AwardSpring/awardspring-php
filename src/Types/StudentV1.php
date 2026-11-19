@@ -4,6 +4,7 @@ namespace Awardspring\Types;
 
 use Awardspring\Core\Json\JsonSerializableType;
 use Awardspring\Core\Json\JsonProperty;
+use Awardspring\Core\Types\ArrayType;
 
 /**
  * One student account at the institution.
@@ -69,6 +70,19 @@ class StudentV1 extends JsonSerializableType
     public ?int $createdDate;
 
     /**
+     * The options the student picked on the Major question of the current award cycle's general
+     * application, as the option text, in the order the question lists them. A choice the institution has
+     * since removed from the question still shows, after the ones it lists. The question can take
+     * several answers, so this may hold more than one. The options are written by the institution, so
+     * these are the institution's own words and not a fixed list. Empty when the current cycle has no
+     * Major question, the student has not answered it, or the institution has no current award cycle.
+     *
+     * @var ?array<string> $majors
+     */
+    #[JsonProperty('majors'), ArrayType(['string'])]
+    public ?array $majors;
+
+    /**
      * @param array{
      *   object?: ?string,
      *   id?: ?string,
@@ -78,6 +92,7 @@ class StudentV1 extends JsonSerializableType
      *   studentId?: ?string,
      *   enrollmentStatus?: ?string,
      *   createdDate?: ?int,
+     *   majors?: ?array<string>,
      * } $values
      */
     public function __construct(
@@ -91,6 +106,7 @@ class StudentV1 extends JsonSerializableType
         $this->studentId = $values['studentId'] ?? null;
         $this->enrollmentStatus = $values['enrollmentStatus'] ?? null;
         $this->createdDate = $values['createdDate'] ?? null;
+        $this->majors = $values['majors'] ?? null;
     }
 
     /**

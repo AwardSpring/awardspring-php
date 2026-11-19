@@ -91,7 +91,11 @@ class GiftV1 extends JsonSerializableType
     public ?bool $giftAcknowledgementSent;
 
     /**
-     * @var ?int $date The date of the gift or pledge, in the institution's local time zone (UTC epoch seconds on the wire).
+     * The date of the gift or pledge, as the institution's own wall-clock time, sent as epoch seconds.
+     * The number is not a true UTC moment: it counts the school's clock as if the school were on UTC, so a gift made
+     * at 10:00 AM school time arrives as 10:00 UTC. Read it as UTC and show it as is; do not convert it to the viewer's time zone.
+     *
+     * @var ?int $date
      */
     #[JsonProperty('date')]
     public ?int $date;
@@ -104,6 +108,35 @@ class GiftV1 extends JsonSerializableType
      */
     #[JsonProperty('soft_credits'), ArrayType([SoftCreditV1::class])]
     public ?array $softCredits;
+
+    /**
+     * When anything stored on the gift or pledge that this resource returns last changed, in UTC epoch
+     * seconds. Logging it counts as a change. Null only on a dry-run create, because nothing was saved.
+     * Use it with the gifts list's `changed_since` to pick up only the gifts that changed.
+     *
+     * @var ?int $lastChangedAt
+     */
+    #[JsonProperty('last_changed_at')]
+    public ?int $lastChangedAt;
+
+    /**
+     * Present, and `true`, only on a gift or pledge that was removed. Removed gifts appear only in a
+     * gifts list requested with `changed_since`, and carry only `object`, `id`,
+     * `deleted` and `removed_at`. Otherwise the key is omitted.
+     *
+     * @var ?bool $deleted
+     */
+    #[JsonProperty('deleted')]
+    public ?bool $deleted;
+
+    /**
+     * On a removed gift or pledge only: when it was removed, in UTC epoch seconds. Otherwise the key is
+     * omitted.
+     *
+     * @var ?int $removedAt
+     */
+    #[JsonProperty('removed_at')]
+    public ?int $removedAt;
 
     /**
      * @param array{
@@ -121,6 +154,9 @@ class GiftV1 extends JsonSerializableType
      *   giftAcknowledgementSent?: ?bool,
      *   date?: ?int,
      *   softCredits?: ?array<SoftCreditV1>,
+     *   lastChangedAt?: ?int,
+     *   deleted?: ?bool,
+     *   removedAt?: ?int,
      * } $values
      */
     public function __construct(
@@ -140,6 +176,9 @@ class GiftV1 extends JsonSerializableType
         $this->giftAcknowledgementSent = $values['giftAcknowledgementSent'] ?? null;
         $this->date = $values['date'] ?? null;
         $this->softCredits = $values['softCredits'] ?? null;
+        $this->lastChangedAt = $values['lastChangedAt'] ?? null;
+        $this->deleted = $values['deleted'] ?? null;
+        $this->removedAt = $values['removedAt'] ?? null;
     }
 
     /**

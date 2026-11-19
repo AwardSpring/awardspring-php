@@ -5,7 +5,12 @@ namespace Awardspring\Scholarships;
 use Psr\Http\Client\ClientInterface;
 use Awardspring\Core\Client\RawClient;
 use Awardspring\Scholarships\Requests\ListScholarshipsRequest;
+use Awardspring\Core\Pagination\Pager;
+use Awardspring\Types\ScholarshipListItemV1;
+use Awardspring\Core\Pagination\CursorPager;
 use Awardspring\Types\ScholarshipListItemV1ListResponse;
+use Awardspring\Scholarships\Requests\CreateScholarshipV1Request;
+use Awardspring\Types\CreateScholarshipV1Response;
 use Awardspring\Exceptions\AwardspringException;
 use Awardspring\Exceptions\AwardspringApiException;
 use Awardspring\Core\Json\JsonApiRequest;
@@ -13,15 +18,14 @@ use Awardspring\Environments;
 use Awardspring\Core\Client\HttpMethod;
 use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
-use Awardspring\Scholarships\Requests\CreateScholarshipV1Request;
-use Awardspring\Types\CreateScholarshipV1Response;
 use Awardspring\Types\ScholarshipV1;
 use Awardspring\Scholarships\Requests\UpdateScholarshipV1Request;
 use Awardspring\Scholarships\Requests\ListAvailableDollarsScholarshipsRequest;
+use Awardspring\Types\ScholarshipAvailableDollarsV1;
 use Awardspring\Types\ScholarshipAvailableDollarsV1ListResponse;
 use Awardspring\Scholarships\Requests\GetAvailableDollarsScholarshipsRequest;
-use Awardspring\Types\ScholarshipAvailableDollarsV1;
 use Awardspring\Scholarships\Requests\ListAwardedStudentsScholarshipsRequest;
+use Awardspring\Types\AwardedStudentV1;
 use Awardspring\Types\AwardedStudentV1ListResponse;
 
 class ScholarshipsClient
@@ -86,56 +90,20 @@ class ScholarshipsClient
      *   queryParameters?: array<string, mixed>,
      *   bodyProperties?: array<string, mixed>,
      * } $options
-     * @return ?ScholarshipListItemV1ListResponse
-     * @throws AwardspringException
-     * @throws AwardspringApiException
+     * @return Pager<ScholarshipListItemV1>
      */
-    public function list(ListScholarshipsRequest $request = new ListScholarshipsRequest(), ?array $options = null): ?ScholarshipListItemV1ListResponse
+    public function list(ListScholarshipsRequest $request = new ListScholarshipsRequest(), ?array $options = null): Pager
     {
-        $options = array_merge($this->options, $options ?? []);
-        $query = [];
-        if ($request->q != null) {
-            $query['q'] = $request->q;
-        }
-        if ($request->limit != null) {
-            $query['limit'] = $request->limit;
-        }
-        if ($request->startingAfter != null) {
-            $query['starting_after'] = $request->startingAfter;
-        }
-        if ($request->endingBefore != null) {
-            $query['ending_before'] = $request->endingBefore;
-        }
-        if ($request->include != null) {
-            $query['include'] = $request->include;
-        }
-        try {
-            $response = $this->client->sendRequest(
-                new JsonApiRequest(
-                    baseUrl: $options['baseUrl'] ?? $this->client->options['baseUrl'] ?? Environments::UnitedStates->value,
-                    path: "api/v1/scholarships",
-                    method: HttpMethod::GET,
-                    query: $query,
-                ),
-                $options,
-            );
-            $statusCode = $response->getStatusCode();
-            if ($statusCode >= 200 && $statusCode < 400) {
-                $json = $response->getBody()->getContents();
-                if (empty($json)) {
-                    return null;
-                }
-                return ScholarshipListItemV1ListResponse::fromJson($json);
-            }
-        } catch (JsonException $e) {
-            throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);
-        } catch (ClientExceptionInterface $e) {
-            throw new AwardspringException(message: $e->getMessage(), previous: $e);
-        }
-        throw new AwardspringApiException(
-            message: 'API request failed',
-            statusCode: $statusCode,
-            body: $response->getBody()->getContents(),
+        return new CursorPager(
+            request: $request,
+            getNextPage: fn (ListScholarshipsRequest $request) => $this->_list($request, $options),
+            setCursor: function (ListScholarshipsRequest $request, ?string $cursor) {
+                $request->startingAfter = $cursor;
+            },
+            /* @phpstan-ignore-next-line */
+            getNextCursor: fn (?ScholarshipListItemV1ListResponse $response) => $response?->nextCursor ?? null,
+            /* @phpstan-ignore-next-line */
+            getItems: fn (?ScholarshipListItemV1ListResponse $response) => $response?->data ?? [],
         );
     }
 
@@ -392,54 +360,20 @@ class ScholarshipsClient
      *   queryParameters?: array<string, mixed>,
      *   bodyProperties?: array<string, mixed>,
      * } $options
-     * @return ?ScholarshipAvailableDollarsV1ListResponse
-     * @throws AwardspringException
-     * @throws AwardspringApiException
+     * @return Pager<ScholarshipAvailableDollarsV1>
      */
-    public function listAvailableDollars(ListAvailableDollarsScholarshipsRequest $request, ?array $options = null): ?ScholarshipAvailableDollarsV1ListResponse
+    public function listAvailableDollars(ListAvailableDollarsScholarshipsRequest $request, ?array $options = null): Pager
     {
-        $options = array_merge($this->options, $options ?? []);
-        $query = [];
-        $query['award_cycle_id'] = $request->awardCycleId;
-        if ($request->limit != null) {
-            $query['limit'] = $request->limit;
-        }
-        if ($request->startingAfter != null) {
-            $query['starting_after'] = $request->startingAfter;
-        }
-        if ($request->endingBefore != null) {
-            $query['ending_before'] = $request->endingBefore;
-        }
-        if ($request->include != null) {
-            $query['include'] = $request->include;
-        }
-        try {
-            $response = $this->client->sendRequest(
-                new JsonApiRequest(
-                    baseUrl: $options['baseUrl'] ?? $this->client->options['baseUrl'] ?? Environments::UnitedStates->value,
-                    path: "api/v1/scholarships/available-dollars",
-                    method: HttpMethod::GET,
-                    query: $query,
-                ),
-                $options,
-            );
-            $statusCode = $response->getStatusCode();
-            if ($statusCode >= 200 && $statusCode < 400) {
-                $json = $response->getBody()->getContents();
-                if (empty($json)) {
-                    return null;
-                }
-                return ScholarshipAvailableDollarsV1ListResponse::fromJson($json);
-            }
-        } catch (JsonException $e) {
-            throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);
-        } catch (ClientExceptionInterface $e) {
-            throw new AwardspringException(message: $e->getMessage(), previous: $e);
-        }
-        throw new AwardspringApiException(
-            message: 'API request failed',
-            statusCode: $statusCode,
-            body: $response->getBody()->getContents(),
+        return new CursorPager(
+            request: $request,
+            getNextPage: fn (ListAvailableDollarsScholarshipsRequest $request) => $this->_listAvailableDollars($request, $options),
+            setCursor: function (ListAvailableDollarsScholarshipsRequest $request, ?string $cursor) {
+                $request->startingAfter = $cursor;
+            },
+            /* @phpstan-ignore-next-line */
+            getNextCursor: fn (?ScholarshipAvailableDollarsV1ListResponse $response) => $response?->nextCursor ?? null,
+            /* @phpstan-ignore-next-line */
+            getItems: fn (?ScholarshipAvailableDollarsV1ListResponse $response) => $response?->data ?? [],
         );
     }
 
@@ -526,11 +460,175 @@ class ScholarshipsClient
      *   queryParameters?: array<string, mixed>,
      *   bodyProperties?: array<string, mixed>,
      * } $options
+     * @return Pager<AwardedStudentV1>
+     */
+    public function listAwardedStudents(ListAwardedStudentsScholarshipsRequest $request, ?array $options = null): Pager
+    {
+        return new CursorPager(
+            request: $request,
+            getNextPage: fn (ListAwardedStudentsScholarshipsRequest $request) => $this->_listAwardedStudents($request, $options),
+            setCursor: function (ListAwardedStudentsScholarshipsRequest $request, ?string $cursor) {
+                $request->startingAfter = $cursor;
+            },
+            /* @phpstan-ignore-next-line */
+            getNextCursor: fn (?AwardedStudentV1ListResponse $response) => $response?->nextCursor ?? null,
+            /* @phpstan-ignore-next-line */
+            getItems: fn (?AwardedStudentV1ListResponse $response) => $response?->data ?? [],
+        );
+    }
+
+    /**
+     * Returns the scholarships belonging to the institution your API key is issued for, in the list
+     * envelope (`object: "list"`, `has_more`, `next_cursor`, `previous_cursor`,
+     * `data`). Page forward by passing the returned `next_cursor` as `starting_after`;
+     * the last page has `next_cursor: null`. `limit` defaults to 25 and is capped at 100.
+     * Results are ordered by scholarship id ascending.
+     * Filter with `?q=` (case-insensitive substring match on the scholarship name).
+     *
+     * Assistant capability: `springiq_list_scholarships`. Required permission: Scholarships (applies when called on behalf of a signed-in person).
+     *
+     * @param ListScholarshipsRequest $request
+     * @param ?array{
+     *   baseUrl?: string,
+     *   maxRetries?: int,
+     *   timeout?: float,
+     *   headers?: array<string, string>,
+     *   queryParameters?: array<string, mixed>,
+     *   bodyProperties?: array<string, mixed>,
+     * } $options
+     * @return ?ScholarshipListItemV1ListResponse
+     * @throws AwardspringException
+     * @throws AwardspringApiException
+     */
+    private function _list(ListScholarshipsRequest $request = new ListScholarshipsRequest(), ?array $options = null): ?ScholarshipListItemV1ListResponse
+    {
+        $options = array_merge($this->options, $options ?? []);
+        $query = [];
+        if ($request->q != null) {
+            $query['q'] = $request->q;
+        }
+        if ($request->limit != null) {
+            $query['limit'] = $request->limit;
+        }
+        if ($request->startingAfter != null) {
+            $query['starting_after'] = $request->startingAfter;
+        }
+        if ($request->endingBefore != null) {
+            $query['ending_before'] = $request->endingBefore;
+        }
+        if ($request->include != null) {
+            $query['include'] = $request->include;
+        }
+        try {
+            $response = $this->client->sendRequest(
+                new JsonApiRequest(
+                    baseUrl: $options['baseUrl'] ?? $this->client->options['baseUrl'] ?? Environments::UnitedStates->value,
+                    path: "api/v1/scholarships",
+                    method: HttpMethod::GET,
+                    query: $query,
+                ),
+                $options,
+            );
+            $statusCode = $response->getStatusCode();
+            if ($statusCode >= 200 && $statusCode < 400) {
+                $json = $response->getBody()->getContents();
+                if (empty($json)) {
+                    return null;
+                }
+                return ScholarshipListItemV1ListResponse::fromJson($json);
+            }
+        } catch (JsonException $e) {
+            throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);
+        } catch (ClientExceptionInterface $e) {
+            throw new AwardspringException(message: $e->getMessage(), previous: $e);
+        }
+        throw new AwardspringApiException(
+            message: 'API request failed',
+            statusCode: $statusCode,
+            body: $response->getBody()->getContents(),
+        );
+    }
+
+    /**
+     * Assistant capability: `springiq_get_available_scholarship_dollars`. Required permission: Scholarships (applies when called on behalf of a signed-in person).
+     *
+     * @param ListAvailableDollarsScholarshipsRequest $request
+     * @param ?array{
+     *   baseUrl?: string,
+     *   maxRetries?: int,
+     *   timeout?: float,
+     *   headers?: array<string, string>,
+     *   queryParameters?: array<string, mixed>,
+     *   bodyProperties?: array<string, mixed>,
+     * } $options
+     * @return ?ScholarshipAvailableDollarsV1ListResponse
+     * @throws AwardspringException
+     * @throws AwardspringApiException
+     */
+    private function _listAvailableDollars(ListAvailableDollarsScholarshipsRequest $request, ?array $options = null): ?ScholarshipAvailableDollarsV1ListResponse
+    {
+        $options = array_merge($this->options, $options ?? []);
+        $query = [];
+        $query['award_cycle_id'] = $request->awardCycleId;
+        if ($request->limit != null) {
+            $query['limit'] = $request->limit;
+        }
+        if ($request->startingAfter != null) {
+            $query['starting_after'] = $request->startingAfter;
+        }
+        if ($request->endingBefore != null) {
+            $query['ending_before'] = $request->endingBefore;
+        }
+        if ($request->include != null) {
+            $query['include'] = $request->include;
+        }
+        try {
+            $response = $this->client->sendRequest(
+                new JsonApiRequest(
+                    baseUrl: $options['baseUrl'] ?? $this->client->options['baseUrl'] ?? Environments::UnitedStates->value,
+                    path: "api/v1/scholarships/available-dollars",
+                    method: HttpMethod::GET,
+                    query: $query,
+                ),
+                $options,
+            );
+            $statusCode = $response->getStatusCode();
+            if ($statusCode >= 200 && $statusCode < 400) {
+                $json = $response->getBody()->getContents();
+                if (empty($json)) {
+                    return null;
+                }
+                return ScholarshipAvailableDollarsV1ListResponse::fromJson($json);
+            }
+        } catch (JsonException $e) {
+            throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);
+        } catch (ClientExceptionInterface $e) {
+            throw new AwardspringException(message: $e->getMessage(), previous: $e);
+        }
+        throw new AwardspringApiException(
+            message: 'API request failed',
+            statusCode: $statusCode,
+            body: $response->getBody()->getContents(),
+        );
+    }
+
+    /**
+     * Assistant capability: `springiq_get_awarded_students`. Required permission: Scholarships (applies when called on behalf of a signed-in person).
+     *
+     * @param ListAwardedStudentsScholarshipsRequest $request
+     * @param ?array{
+     *   baseUrl?: string,
+     *   maxRetries?: int,
+     *   timeout?: float,
+     *   headers?: array<string, string>,
+     *   queryParameters?: array<string, mixed>,
+     *   bodyProperties?: array<string, mixed>,
+     * } $options
      * @return ?AwardedStudentV1ListResponse
      * @throws AwardspringException
      * @throws AwardspringApiException
      */
-    public function listAwardedStudents(ListAwardedStudentsScholarshipsRequest $request, ?array $options = null): ?AwardedStudentV1ListResponse
+    private function _listAwardedStudents(ListAwardedStudentsScholarshipsRequest $request, ?array $options = null): ?AwardedStudentV1ListResponse
     {
         $options = array_merge($this->options, $options ?? []);
         $query = [];

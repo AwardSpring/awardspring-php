@@ -13,6 +13,8 @@ use Awardspring\Core\Client\HttpMethod;
 use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
 use Awardspring\People\Requests\ListPeopleRequest;
+use Awardspring\Core\Pagination\Pager;
+use Awardspring\Core\Pagination\CursorPager;
 use Awardspring\Types\PersonV1ListResponse;
 
 class PeopleClient
@@ -201,11 +203,51 @@ class PeopleClient
      *   queryParameters?: array<string, mixed>,
      *   bodyProperties?: array<string, mixed>,
      * } $options
+     * @return Pager<PersonV1>
+     */
+    public function list(ListPeopleRequest $request = new ListPeopleRequest(), ?array $options = null): Pager
+    {
+        return new CursorPager(
+            request: $request,
+            getNextPage: fn (ListPeopleRequest $request) => $this->_list($request, $options),
+            setCursor: function (ListPeopleRequest $request, ?string $cursor) {
+                $request->startingAfter = $cursor;
+            },
+            /* @phpstan-ignore-next-line */
+            getNextCursor: fn (?PersonV1ListResponse $response) => $response?->nextCursor ?? null,
+            /* @phpstan-ignore-next-line */
+            getItems: fn (?PersonV1ListResponse $response) => $response?->data ?? [],
+        );
+    }
+
+    /**
+     * Returns the people the institution's Users list shows, for the institution your API key is issued
+     * for, in the standard list envelope (`object: "list"`, `has_more`, `next_cursor`,
+     * `previous_cursor`, `data`). Each person carries their roles, the departments an
+     * administrator is limited to, whether the account is archived, and an administrator's permissions.
+     * Page forward by passing the returned `next_cursor` as `starting_after`. `limit`
+     * defaults to 25 and is capped at 100. Results are ordered by id ascending.
+     *
+     *
+     * Filter with `?role=` (`administrators`, `reviewers`, `students` or
+     * `donors`), `?q=` (part of a name, the start of an email address or student number, or an
+     * exact id) and `?status=` (`all`, `active` or `archived`; archived accounts are
+     * listed by default, as on the Users list).
+     *
+     * @param ListPeopleRequest $request
+     * @param ?array{
+     *   baseUrl?: string,
+     *   maxRetries?: int,
+     *   timeout?: float,
+     *   headers?: array<string, string>,
+     *   queryParameters?: array<string, mixed>,
+     *   bodyProperties?: array<string, mixed>,
+     * } $options
      * @return ?PersonV1ListResponse
      * @throws AwardspringException
      * @throws AwardspringApiException
      */
-    public function list(ListPeopleRequest $request = new ListPeopleRequest(), ?array $options = null): ?PersonV1ListResponse
+    private function _list(ListPeopleRequest $request = new ListPeopleRequest(), ?array $options = null): ?PersonV1ListResponse
     {
         $options = array_merge($this->options, $options ?? []);
         $query = [];

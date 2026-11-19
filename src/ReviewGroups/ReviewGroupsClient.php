@@ -5,6 +5,9 @@ namespace Awardspring\ReviewGroups;
 use Psr\Http\Client\ClientInterface;
 use Awardspring\Core\Client\RawClient;
 use Awardspring\ReviewGroups\Requests\ListReviewGroupsRequest;
+use Awardspring\Core\Pagination\Pager;
+use Awardspring\Types\ReviewGroupV1;
+use Awardspring\Core\Pagination\CursorPager;
 use Awardspring\Types\ReviewGroupV1ListResponse;
 use Awardspring\Exceptions\AwardspringException;
 use Awardspring\Exceptions\AwardspringApiException;
@@ -73,11 +76,42 @@ class ReviewGroupsClient
      *   queryParameters?: array<string, mixed>,
      *   bodyProperties?: array<string, mixed>,
      * } $options
+     * @return Pager<ReviewGroupV1>
+     */
+    public function list(ListReviewGroupsRequest $request, ?array $options = null): Pager
+    {
+        return new CursorPager(
+            request: $request,
+            getNextPage: fn (ListReviewGroupsRequest $request) => $this->_list($request, $options),
+            setCursor: function (ListReviewGroupsRequest $request, ?string $cursor) {
+                $request->startingAfter = $cursor;
+            },
+            /* @phpstan-ignore-next-line */
+            getNextCursor: fn (?ReviewGroupV1ListResponse $response) => $response?->nextCursor ?? null,
+            /* @phpstan-ignore-next-line */
+            getItems: fn (?ReviewGroupV1ListResponse $response) => $response?->data ?? [],
+        );
+    }
+
+    /**
+     * Returns the review groups of one award cycle, in the standard list envelope. `award_cycle_id` is
+     * required and is the award cycle's stored ID. Each group shows its stored ID, its name and its award cycle.
+     * An award cycle the institution does not have returns `404 award_cycle_not_found`.
+     *
+     * @param ListReviewGroupsRequest $request
+     * @param ?array{
+     *   baseUrl?: string,
+     *   maxRetries?: int,
+     *   timeout?: float,
+     *   headers?: array<string, string>,
+     *   queryParameters?: array<string, mixed>,
+     *   bodyProperties?: array<string, mixed>,
+     * } $options
      * @return ?ReviewGroupV1ListResponse
      * @throws AwardspringException
      * @throws AwardspringApiException
      */
-    public function list(ListReviewGroupsRequest $request, ?array $options = null): ?ReviewGroupV1ListResponse
+    private function _list(ListReviewGroupsRequest $request, ?array $options = null): ?ReviewGroupV1ListResponse
     {
         $options = array_merge($this->options, $options ?? []);
         $query = [];

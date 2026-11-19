@@ -15,9 +15,10 @@
       ]
     }
   },
-  "originGitCommit": "761d20dd49a71484b9ad5408816b9ef4913ca313",
+  "originGitCommit": "e4bff54ade7bb4dfae6aa06a624c72e1ee6f627a",
   "originGitCommitIsDirty": false,
   "invokedBy": "ci",
+  "requestedVersion": "0.2.0",
   "ciProvider": "azure-pipelines",
-  "sdkVersion": "0.1.12"
+  "sdkVersion": "0.2.0"
 }

@@ -5,6 +5,9 @@ namespace Awardspring\Awards;
 use Psr\Http\Client\ClientInterface;
 use Awardspring\Core\Client\RawClient;
 use Awardspring\Awards\Requests\ListAwardsRequest;
+use Awardspring\Core\Pagination\Pager;
+use Awardspring\Types\AwardV1;
+use Awardspring\Core\Pagination\CursorPager;
 use Awardspring\Types\AwardV1ListResponse;
 use Awardspring\Exceptions\AwardspringException;
 use Awardspring\Exceptions\AwardspringApiException;
@@ -75,11 +78,46 @@ class AwardsClient
      *   queryParameters?: array<string, mixed>,
      *   bodyProperties?: array<string, mixed>,
      * } $options
+     * @return Pager<AwardV1>
+     */
+    public function list(ListAwardsRequest $request = new ListAwardsRequest(), ?array $options = null): Pager
+    {
+        return new CursorPager(
+            request: $request,
+            getNextPage: fn (ListAwardsRequest $request) => $this->_list($request, $options),
+            setCursor: function (ListAwardsRequest $request, ?string $cursor) {
+                $request->startingAfter = $cursor;
+            },
+            /* @phpstan-ignore-next-line */
+            getNextCursor: fn (?AwardV1ListResponse $response) => $response?->nextCursor ?? null,
+            /* @phpstan-ignore-next-line */
+            getItems: fn (?AwardV1ListResponse $response) => $response?->data ?? [],
+        );
+    }
+
+    /**
+     * Returns one page at a time. Each row names the awarded scholarship and its award cycle,
+     * and carries the awarded amount and decision date. Without filters the list covers the
+     * whole institution; narrow it with `user_id` (a student's `id` from the
+     * Students endpoints) to scope to a single student. Returns `404 student_not_found`,
+     * naming `user_id` in `param`, when the `user_id` is not a student at this institution.
+     *
+     * Assistant capability: `springiq_list_student_awards`. Required permission: Users (applies when called on behalf of a signed-in person).
+     *
+     * @param ListAwardsRequest $request
+     * @param ?array{
+     *   baseUrl?: string,
+     *   maxRetries?: int,
+     *   timeout?: float,
+     *   headers?: array<string, string>,
+     *   queryParameters?: array<string, mixed>,
+     *   bodyProperties?: array<string, mixed>,
+     * } $options
      * @return ?AwardV1ListResponse
      * @throws AwardspringException
      * @throws AwardspringApiException
      */
-    public function list(ListAwardsRequest $request = new ListAwardsRequest(), ?array $options = null): ?AwardV1ListResponse
+    private function _list(ListAwardsRequest $request = new ListAwardsRequest(), ?array $options = null): ?AwardV1ListResponse
     {
         $options = array_merge($this->options, $options ?? []);
         $query = [];

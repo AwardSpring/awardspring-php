@@ -131,8 +131,8 @@ class AwardspringApiClient
             'X-Spring-API-Key' => $apiKey,
             'X-Fern-Language' => 'PHP',
             'X-Fern-SDK-Name' => 'Awardspring',
-            'X-Fern-SDK-Version' => '0.1.12',
-            'User-Agent' => 'awardspring/awardspring-php/0.1.12',
+            'X-Fern-SDK-Version' => '0.2.0',
+            'User-Agent' => 'awardspring/awardspring-php/0.2.0',
         ];
 
         $this->options = $options ?? [];

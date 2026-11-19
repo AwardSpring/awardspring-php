@@ -59,6 +59,19 @@ class DonorV1 extends JsonSerializableType
     public ?string $role;
 
     /**
+     * Whether the donor's record is archived, the way AwardSpring shows it. `true` when the
+     * account is not active, or when the person is a donor only through an extra Donor role and that role
+     * is archived; `false` for an active donor, and again once the donor is restored. Archiving and
+     * restoring each move `last_changed_at`, so a donors list requested with `changed_since`
+     * lists an archived donor marked `true` and a restored one marked `false`; archiving never
+     * removes a donor from that list.
+     *
+     * @var ?bool $archived
+     */
+    #[JsonProperty('archived')]
+    public ?bool $archived;
+
+    /**
      * @var ?int $dateOfBirth
      */
     #[JsonProperty('date_of_birth')]
@@ -227,6 +240,20 @@ class DonorV1 extends JsonSerializableType
     public ?bool $includeSoftCredits;
 
     /**
+     * When anything stored on the donor that the API returns last changed, in UTC epoch seconds: their
+     * name, contact details, profile, whether their donor record is archived, the tags on them, their answers
+     * to the school's donor custom fields, or which kinds of email they are opted out of. Renaming a tag, a
+     * custom field or one of its choices does not count, because it changes the school's list, not the
+     * donor. Adding the donor counts as
+     * a change; their gifts and pledges do not. Null only on a dry-run create, because no donor was saved.
+     * Use it with the donors list's `changed_since` to pick up only the donors that changed.
+     *
+     * @var ?int $lastChangedAt
+     */
+    #[JsonProperty('last_changed_at')]
+    public ?int $lastChangedAt;
+
+    /**
      * @param array{
      *   object?: ?string,
      *   id?: ?string,
@@ -235,6 +262,7 @@ class DonorV1 extends JsonSerializableType
      *   email?: ?string,
      *   phone?: ?string,
      *   role?: ?value-of<DonorV1Role>,
+     *   archived?: ?bool,
      *   dateOfBirth?: ?int,
      *   birthMonth?: ?string,
      *   birthDay?: ?int,
@@ -263,6 +291,7 @@ class DonorV1 extends JsonSerializableType
      *   description?: ?string,
      *   notes?: ?string,
      *   includeSoftCredits?: ?bool,
+     *   lastChangedAt?: ?int,
      * } $values
      */
     public function __construct(
@@ -275,6 +304,7 @@ class DonorV1 extends JsonSerializableType
         $this->email = $values['email'] ?? null;
         $this->phone = $values['phone'] ?? null;
         $this->role = $values['role'] ?? null;
+        $this->archived = $values['archived'] ?? null;
         $this->dateOfBirth = $values['dateOfBirth'] ?? null;
         $this->birthMonth = $values['birthMonth'] ?? null;
         $this->birthDay = $values['birthDay'] ?? null;
@@ -303,6 +333,7 @@ class DonorV1 extends JsonSerializableType
         $this->description = $values['description'] ?? null;
         $this->notes = $values['notes'] ?? null;
         $this->includeSoftCredits = $values['includeSoftCredits'] ?? null;
+        $this->lastChangedAt = $values['lastChangedAt'] ?? null;
     }
 
     /**

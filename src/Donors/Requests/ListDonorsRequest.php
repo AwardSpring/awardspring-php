@@ -49,12 +49,28 @@ class ListDonorsRequest extends JsonSerializableType
     public ?array $givingStatus;
 
     /**
-     * The order to list donors in (`?sort=`): `name` or `last_contacted`. Leave it
-     * out for the default order. Any other value returns `400 validation_failed`.
+     * The order to list donors in (`?sort=`): `name`, `last_contacted` or
+     * `longest_since_contact`. Leave it out for the default order. Any other value returns
+     * `400 validation_failed`.
      *
      * @var ?value-of<ListDonorsRequestSort> $sort
      */
     public ?string $sort;
+
+    /**
+     * Only donors that changed at or after this time (`?changed_since=`), in UTC epoch seconds, such
+     * as `1767225600`. The list is then in the order the donors changed, oldest change first, and
+     * includes donors whose record was archived, marked `archived: true`. With no
+     * `level` or `giving_status`, it also lists each donor removed since that time, with only
+     * its `id`, `deleted` and `removed_at`, including a person who stops being a donor but
+     * keeps their account. Such a person who becomes a donor again is listed again, as a change after the
+     * removal, with the same `id`. Start the next sync from the list's
+     * `complete_up_to`. A time in the future, or anything but a whole number of seconds, returns
+     * `400 validation_failed`. It cannot be combined with `q` or `sort`.
+     *
+     * @var ?int $changedSince
+     */
+    public ?int $changedSince;
 
     /**
      * @var ?int $limit Page size. Defaults to 25. Values outside 1–100 are clamped rather than rejected.
@@ -62,12 +78,12 @@ class ListDonorsRequest extends JsonSerializableType
     public ?int $limit;
 
     /**
-     * @var ?string $startingAfter Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Mutually exclusive with `ending_before`; if both are supplied, `starting_after` wins.
+     * @var ?string $startingAfter Opaque cursor. Pass the `next_cursor` from the previous page to page forward. Send it or `ending_before`, never both: a request with both returns `400 validation_failed`.
      */
     public ?string $startingAfter;
 
     /**
-     * @var ?string $endingBefore Opaque cursor. Pass the `previous_cursor` from the current page to page backward.
+     * @var ?string $endingBefore Opaque cursor. Pass the `previous_cursor` from the current page to page backward. Send it or `starting_after`, never both: a request with both returns `400 validation_failed`.
      */
     public ?string $endingBefore;
 
@@ -82,6 +98,7 @@ class ListDonorsRequest extends JsonSerializableType
      *   level?: ?array<value-of<ListDonorsRequestLevelItem>>,
      *   givingStatus?: ?array<value-of<ListDonorsRequestGivingStatusItem>>,
      *   sort?: ?value-of<ListDonorsRequestSort>,
+     *   changedSince?: ?int,
      *   limit?: ?int,
      *   startingAfter?: ?string,
      *   endingBefore?: ?string,
@@ -95,6 +112,7 @@ class ListDonorsRequest extends JsonSerializableType
         $this->level = $values['level'] ?? null;
         $this->givingStatus = $values['givingStatus'] ?? null;
         $this->sort = $values['sort'] ?? null;
+        $this->changedSince = $values['changedSince'] ?? null;
         $this->limit = $values['limit'] ?? null;
         $this->startingAfter = $values['startingAfter'] ?? null;
         $this->endingBefore = $values['endingBefore'] ?? null;

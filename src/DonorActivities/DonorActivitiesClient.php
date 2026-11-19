@@ -5,7 +5,12 @@ namespace Awardspring\DonorActivities;
 use Psr\Http\Client\ClientInterface;
 use Awardspring\Core\Client\RawClient;
 use Awardspring\DonorActivities\Requests\ListDonorActivitiesRequest;
+use Awardspring\Core\Pagination\Pager;
+use Awardspring\Types\DonorActivityV1;
+use Awardspring\Core\Pagination\CursorPager;
 use Awardspring\Types\DonorActivityV1ListResponse;
+use Awardspring\DonorActivities\Requests\CreateDonorActivityV1Request;
+use Awardspring\Types\CreateDonorActivityV1Response;
 use Awardspring\Exceptions\AwardspringException;
 use Awardspring\Exceptions\AwardspringApiException;
 use Awardspring\Core\Json\JsonApiRequest;
@@ -13,10 +18,7 @@ use Awardspring\Environments;
 use Awardspring\Core\Client\HttpMethod;
 use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
-use Awardspring\DonorActivities\Requests\CreateDonorActivityV1Request;
-use Awardspring\Types\CreateDonorActivityV1Response;
 use Awardspring\DonorActivities\Requests\GetDonorActivitiesRequest;
-use Awardspring\Types\DonorActivityV1;
 
 class DonorActivitiesClient
 {
@@ -75,59 +77,20 @@ class DonorActivitiesClient
      *   queryParameters?: array<string, mixed>,
      *   bodyProperties?: array<string, mixed>,
      * } $options
-     * @return ?DonorActivityV1ListResponse
-     * @throws AwardspringException
-     * @throws AwardspringApiException
+     * @return Pager<DonorActivityV1>
      */
-    public function list(string $donorId, ListDonorActivitiesRequest $request = new ListDonorActivitiesRequest(), ?array $options = null): ?DonorActivityV1ListResponse
+    public function list(string $donorId, ListDonorActivitiesRequest $request = new ListDonorActivitiesRequest(), ?array $options = null): Pager
     {
-        $options = array_merge($this->options, $options ?? []);
-        $query = [];
-        if ($request->q != null) {
-            $query['q'] = $request->q;
-        }
-        if ($request->activityType != null) {
-            $query['activity_type'] = $request->activityType;
-        }
-        if ($request->limit != null) {
-            $query['limit'] = $request->limit;
-        }
-        if ($request->startingAfter != null) {
-            $query['starting_after'] = $request->startingAfter;
-        }
-        if ($request->endingBefore != null) {
-            $query['ending_before'] = $request->endingBefore;
-        }
-        if ($request->include != null) {
-            $query['include'] = $request->include;
-        }
-        try {
-            $response = $this->client->sendRequest(
-                new JsonApiRequest(
-                    baseUrl: $options['baseUrl'] ?? $this->client->options['baseUrl'] ?? Environments::UnitedStates->value,
-                    path: "api/v1/donors/{$donorId}/activities",
-                    method: HttpMethod::GET,
-                    query: $query,
-                ),
-                $options,
-            );
-            $statusCode = $response->getStatusCode();
-            if ($statusCode >= 200 && $statusCode < 400) {
-                $json = $response->getBody()->getContents();
-                if (empty($json)) {
-                    return null;
-                }
-                return DonorActivityV1ListResponse::fromJson($json);
-            }
-        } catch (JsonException $e) {
-            throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);
-        } catch (ClientExceptionInterface $e) {
-            throw new AwardspringException(message: $e->getMessage(), previous: $e);
-        }
-        throw new AwardspringApiException(
-            message: 'API request failed',
-            statusCode: $statusCode,
-            body: $response->getBody()->getContents(),
+        return new CursorPager(
+            request: $request,
+            getNextPage: fn (ListDonorActivitiesRequest $request) => $this->_list($donorId, $request, $options),
+            setCursor: function (ListDonorActivitiesRequest $request, ?string $cursor) {
+                $request->startingAfter = $cursor;
+            },
+            /* @phpstan-ignore-next-line */
+            getNextCursor: fn (?DonorActivityV1ListResponse $response) => $response?->nextCursor ?? null,
+            /* @phpstan-ignore-next-line */
+            getItems: fn (?DonorActivityV1ListResponse $response) => $response?->data ?? [],
         );
     }
 
@@ -138,7 +101,9 @@ class DonorActivitiesClient
      *
      *
      * Supported activity types: `LoggedEmail`, `LoggedPhone`, `LoggedMeeting`, `LoggedNote`,
-     * `LoggedPledge`. Gifts are recorded through the Gifts endpoints instead.
+     * `LoggedPledge`. Gifts are recorded through the Gifts endpoints instead. A pledge for an archived donor,
+     * whether the account is archived or only its Donor role, returns `400 validation_failed`; restore the
+     * donor first. Other activity types are recorded for an archived donor.
      *
      *
      * A typical use is working through a call list and logging each conversation as it ends, with the
@@ -263,6 +228,75 @@ class DonorActivitiesClient
                     return null;
                 }
                 return DonorActivityV1::fromJson($json);
+            }
+        } catch (JsonException $e) {
+            throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);
+        } catch (ClientExceptionInterface $e) {
+            throw new AwardspringException(message: $e->getMessage(), previous: $e);
+        }
+        throw new AwardspringApiException(
+            message: 'API request failed',
+            statusCode: $statusCode,
+            body: $response->getBody()->getContents(),
+        );
+    }
+
+    /**
+     * Assistant capability: `springiq_list_donor_activities`. Required permission: Donors (applies when called on behalf of a signed-in person).
+     *
+     * @param string $donorId
+     * @param ListDonorActivitiesRequest $request
+     * @param ?array{
+     *   baseUrl?: string,
+     *   maxRetries?: int,
+     *   timeout?: float,
+     *   headers?: array<string, string>,
+     *   queryParameters?: array<string, mixed>,
+     *   bodyProperties?: array<string, mixed>,
+     * } $options
+     * @return ?DonorActivityV1ListResponse
+     * @throws AwardspringException
+     * @throws AwardspringApiException
+     */
+    private function _list(string $donorId, ListDonorActivitiesRequest $request = new ListDonorActivitiesRequest(), ?array $options = null): ?DonorActivityV1ListResponse
+    {
+        $options = array_merge($this->options, $options ?? []);
+        $query = [];
+        if ($request->q != null) {
+            $query['q'] = $request->q;
+        }
+        if ($request->activityType != null) {
+            $query['activity_type'] = $request->activityType;
+        }
+        if ($request->limit != null) {
+            $query['limit'] = $request->limit;
+        }
+        if ($request->startingAfter != null) {
+            $query['starting_after'] = $request->startingAfter;
+        }
+        if ($request->endingBefore != null) {
+            $query['ending_before'] = $request->endingBefore;
+        }
+        if ($request->include != null) {
+            $query['include'] = $request->include;
+        }
+        try {
+            $response = $this->client->sendRequest(
+                new JsonApiRequest(
+                    baseUrl: $options['baseUrl'] ?? $this->client->options['baseUrl'] ?? Environments::UnitedStates->value,
+                    path: "api/v1/donors/{$donorId}/activities",
+                    method: HttpMethod::GET,
+                    query: $query,
+                ),
+                $options,
+            );
+            $statusCode = $response->getStatusCode();
+            if ($statusCode >= 200 && $statusCode < 400) {
+                $json = $response->getBody()->getContents();
+                if (empty($json)) {
+                    return null;
+                }
+                return DonorActivityV1ListResponse::fromJson($json);
             }
         } catch (JsonException $e) {
             throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);

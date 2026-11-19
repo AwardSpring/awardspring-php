@@ -4,6 +4,7 @@ namespace Awardspring\Types;
 
 use Awardspring\Core\Json\JsonSerializableType;
 use Awardspring\Core\Json\JsonProperty;
+use Awardspring\Core\Types\ArrayType;
 
 /**
  * One student's application to one scholarship within an award cycle.
@@ -81,6 +82,25 @@ class ApplicationV1 extends JsonSerializableType
     public ?string $entryOutcome;
 
     /**
+     * @var ?array<ApplicationEntryAnswerV1> $entryAnswers The student's answers to this award cycle's entry questions in the order the application asks them. Each one names the section Entry Questions. Null when the award cycle has no entry questions.
+     */
+    #[JsonProperty('entry_answers'), ArrayType([ApplicationEntryAnswerV1::class])]
+    public ?array $entryAnswers;
+
+    /**
+     * The options the student picked on the Major question of this award cycle's general application,
+     * as the option text, in the order the question lists them. A choice the institution has since removed
+     * from the question still shows, after the ones it lists. The question can take several answers,
+     * so this may hold more than one. The options are written by the institution, so these are the
+     * institution's own words and not a fixed list. Empty when this award cycle has no Major question
+     * or the student has not answered it.
+     *
+     * @var ?array<string> $majors
+     */
+    #[JsonProperty('majors'), ArrayType(['string'])]
+    public ?array $majors;
+
+    /**
      * @param array{
      *   object?: ?string,
      *   id?: ?string,
@@ -92,6 +112,8 @@ class ApplicationV1 extends JsonSerializableType
      *   status?: ?string,
      *   appliedDate?: ?int,
      *   entryOutcome?: ?string,
+     *   entryAnswers?: ?array<ApplicationEntryAnswerV1>,
+     *   majors?: ?array<string>,
      * } $values
      */
     public function __construct(
@@ -107,6 +129,8 @@ class ApplicationV1 extends JsonSerializableType
         $this->status = $values['status'] ?? null;
         $this->appliedDate = $values['appliedDate'] ?? null;
         $this->entryOutcome = $values['entryOutcome'] ?? null;
+        $this->entryAnswers = $values['entryAnswers'] ?? null;
+        $this->majors = $values['majors'] ?? null;
     }
 
     /**

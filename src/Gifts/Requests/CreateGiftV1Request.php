@@ -59,7 +59,7 @@ class CreateGiftV1Request extends JsonSerializableType
 
     /**
      * ISO 8601 date the gift/pledge occurred (e.g. `"2026-04-03"` or `"2026-04-03T10:00:00Z"`).
-     * Required. Interpreted in the tenant's time zone and persisted in UTC.
+     * Required. A time with a zone (`Z` or an offset such as `-05:00`) is that exact moment; a date or time without a zone is the institution's own clock. Persisted in UTC. When the gift is read back, its date is the institution's own clock time (see the gift's `date` field), not a true UTC moment.
      *
      * @var ?string $giftDate
      */

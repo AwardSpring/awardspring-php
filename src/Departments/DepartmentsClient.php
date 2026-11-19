@@ -5,7 +5,11 @@ namespace Awardspring\Departments;
 use Psr\Http\Client\ClientInterface;
 use Awardspring\Core\Client\RawClient;
 use Awardspring\Departments\Requests\ListDepartmentsRequest;
+use Awardspring\Core\Pagination\Pager;
+use Awardspring\Types\DepartmentV1;
+use Awardspring\Core\Pagination\CursorPager;
 use Awardspring\Types\DepartmentV1ListResponse;
+use Awardspring\Departments\Requests\CreateDepartmentV1Request;
 use Awardspring\Exceptions\AwardspringException;
 use Awardspring\Exceptions\AwardspringApiException;
 use Awardspring\Core\Json\JsonApiRequest;
@@ -13,8 +17,6 @@ use Awardspring\Environments;
 use Awardspring\Core\Client\HttpMethod;
 use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
-use Awardspring\Departments\Requests\CreateDepartmentV1Request;
-use Awardspring\Types\DepartmentV1;
 
 class DepartmentsClient
 {
@@ -76,56 +78,20 @@ class DepartmentsClient
      *   queryParameters?: array<string, mixed>,
      *   bodyProperties?: array<string, mixed>,
      * } $options
-     * @return ?DepartmentV1ListResponse
-     * @throws AwardspringException
-     * @throws AwardspringApiException
+     * @return Pager<DepartmentV1>
      */
-    public function list(ListDepartmentsRequest $request = new ListDepartmentsRequest(), ?array $options = null): ?DepartmentV1ListResponse
+    public function list(ListDepartmentsRequest $request = new ListDepartmentsRequest(), ?array $options = null): Pager
     {
-        $options = array_merge($this->options, $options ?? []);
-        $query = [];
-        if ($request->q != null) {
-            $query['q'] = $request->q;
-        }
-        if ($request->limit != null) {
-            $query['limit'] = $request->limit;
-        }
-        if ($request->startingAfter != null) {
-            $query['starting_after'] = $request->startingAfter;
-        }
-        if ($request->endingBefore != null) {
-            $query['ending_before'] = $request->endingBefore;
-        }
-        if ($request->include != null) {
-            $query['include'] = $request->include;
-        }
-        try {
-            $response = $this->client->sendRequest(
-                new JsonApiRequest(
-                    baseUrl: $options['baseUrl'] ?? $this->client->options['baseUrl'] ?? Environments::UnitedStates->value,
-                    path: "api/v1/departments",
-                    method: HttpMethod::GET,
-                    query: $query,
-                ),
-                $options,
-            );
-            $statusCode = $response->getStatusCode();
-            if ($statusCode >= 200 && $statusCode < 400) {
-                $json = $response->getBody()->getContents();
-                if (empty($json)) {
-                    return null;
-                }
-                return DepartmentV1ListResponse::fromJson($json);
-            }
-        } catch (JsonException $e) {
-            throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);
-        } catch (ClientExceptionInterface $e) {
-            throw new AwardspringException(message: $e->getMessage(), previous: $e);
-        }
-        throw new AwardspringApiException(
-            message: 'API request failed',
-            statusCode: $statusCode,
-            body: $response->getBody()->getContents(),
+        return new CursorPager(
+            request: $request,
+            getNextPage: fn (ListDepartmentsRequest $request) => $this->_list($request, $options),
+            setCursor: function (ListDepartmentsRequest $request, ?string $cursor) {
+                $request->startingAfter = $cursor;
+            },
+            /* @phpstan-ignore-next-line */
+            getNextCursor: fn (?DepartmentV1ListResponse $response) => $response?->nextCursor ?? null,
+            /* @phpstan-ignore-next-line */
+            getItems: fn (?DepartmentV1ListResponse $response) => $response?->data ?? [],
         );
     }
 
@@ -182,6 +148,76 @@ class DepartmentsClient
                     return null;
                 }
                 return DepartmentV1::fromJson($json);
+            }
+        } catch (JsonException $e) {
+            throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);
+        } catch (ClientExceptionInterface $e) {
+            throw new AwardspringException(message: $e->getMessage(), previous: $e);
+        }
+        throw new AwardspringApiException(
+            message: 'API request failed',
+            statusCode: $statusCode,
+            body: $response->getBody()->getContents(),
+        );
+    }
+
+    /**
+     * Returns the departments of the institution your API key is issued for, in the standard list envelope
+     * (`object: "list"`, `has_more`, `next_cursor`, `previous_cursor`, `data`),
+     * each with how many differently named scholarships and how many administrators belong to it. Page
+     * forward by passing the returned `next_cursor` as `starting_after`. `limit` defaults to
+     * 25 and is capped at 100. Results are ordered by id ascending. Filter with `?q=`
+     * (case-insensitive substring match on the department name).
+     *
+     * @param ListDepartmentsRequest $request
+     * @param ?array{
+     *   baseUrl?: string,
+     *   maxRetries?: int,
+     *   timeout?: float,
+     *   headers?: array<string, string>,
+     *   queryParameters?: array<string, mixed>,
+     *   bodyProperties?: array<string, mixed>,
+     * } $options
+     * @return ?DepartmentV1ListResponse
+     * @throws AwardspringException
+     * @throws AwardspringApiException
+     */
+    private function _list(ListDepartmentsRequest $request = new ListDepartmentsRequest(), ?array $options = null): ?DepartmentV1ListResponse
+    {
+        $options = array_merge($this->options, $options ?? []);
+        $query = [];
+        if ($request->q != null) {
+            $query['q'] = $request->q;
+        }
+        if ($request->limit != null) {
+            $query['limit'] = $request->limit;
+        }
+        if ($request->startingAfter != null) {
+            $query['starting_after'] = $request->startingAfter;
+        }
+        if ($request->endingBefore != null) {
+            $query['ending_before'] = $request->endingBefore;
+        }
+        if ($request->include != null) {
+            $query['include'] = $request->include;
+        }
+        try {
+            $response = $this->client->sendRequest(
+                new JsonApiRequest(
+                    baseUrl: $options['baseUrl'] ?? $this->client->options['baseUrl'] ?? Environments::UnitedStates->value,
+                    path: "api/v1/departments",
+                    method: HttpMethod::GET,
+                    query: $query,
+                ),
+                $options,
+            );
+            $statusCode = $response->getStatusCode();
+            if ($statusCode >= 200 && $statusCode < 400) {
+                $json = $response->getBody()->getContents();
+                if (empty($json)) {
+                    return null;
+                }
+                return DepartmentV1ListResponse::fromJson($json);
             }
         } catch (JsonException $e) {
             throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);

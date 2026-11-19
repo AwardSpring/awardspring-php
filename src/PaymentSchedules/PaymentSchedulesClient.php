@@ -5,6 +5,9 @@ namespace Awardspring\PaymentSchedules;
 use Psr\Http\Client\ClientInterface;
 use Awardspring\Core\Client\RawClient;
 use Awardspring\PaymentSchedules\Requests\ListPaymentSchedulesRequest;
+use Awardspring\Core\Pagination\Pager;
+use Awardspring\Types\PaymentScheduleV1;
+use Awardspring\Core\Pagination\CursorPager;
 use Awardspring\Types\PaymentScheduleV1ListResponse;
 use Awardspring\Exceptions\AwardspringException;
 use Awardspring\Exceptions\AwardspringApiException;
@@ -79,11 +82,50 @@ class PaymentSchedulesClient
      *   queryParameters?: array<string, mixed>,
      *   bodyProperties?: array<string, mixed>,
      * } $options
+     * @return Pager<PaymentScheduleV1>
+     */
+    public function list(ListPaymentSchedulesRequest $request = new ListPaymentSchedulesRequest(), ?array $options = null): Pager
+    {
+        return new CursorPager(
+            request: $request,
+            getNextPage: fn (ListPaymentSchedulesRequest $request) => $this->_list($request, $options),
+            setCursor: function (ListPaymentSchedulesRequest $request, ?string $cursor) {
+                $request->startingAfter = $cursor;
+            },
+            /* @phpstan-ignore-next-line */
+            getNextCursor: fn (?PaymentScheduleV1ListResponse $response) => $response?->nextCursor ?? null,
+            /* @phpstan-ignore-next-line */
+            getItems: fn (?PaymentScheduleV1ListResponse $response) => $response?->data ?? [],
+        );
+    }
+
+    /**
+     * Returns the payment schedules belonging to the institution your API key is issued for, in the list
+     * envelope (`object: "list"`, `has_more`, `next_cursor`, `previous_cursor`,
+     * `data`). Page forward by passing the returned `next_cursor` as `starting_after`;
+     * the last page has `next_cursor: null`. `limit` defaults to 25 and is capped at 100.
+     * Each schedule's `id` is its stored ID (9 characters, capital letters and numbers): pass it
+     * exactly as returned in a scholarship's `payment_schedule_ids`. Results come in the order the
+     * schedules were created; sort by `payment_date` to get the order `payment_schedule_ids`
+     * expects. Filter with `?award_cycle_id=` to list only the schedules configured on that award
+     * cycle; an award cycle the institution does not have returns `404 award_cycle_not_found`.
+     *
+     * Assistant capability: `springiq_list_payment_schedules`.
+     *
+     * @param ListPaymentSchedulesRequest $request
+     * @param ?array{
+     *   baseUrl?: string,
+     *   maxRetries?: int,
+     *   timeout?: float,
+     *   headers?: array<string, string>,
+     *   queryParameters?: array<string, mixed>,
+     *   bodyProperties?: array<string, mixed>,
+     * } $options
      * @return ?PaymentScheduleV1ListResponse
      * @throws AwardspringException
      * @throws AwardspringApiException
      */
-    public function list(ListPaymentSchedulesRequest $request = new ListPaymentSchedulesRequest(), ?array $options = null): ?PaymentScheduleV1ListResponse
+    private function _list(ListPaymentSchedulesRequest $request = new ListPaymentSchedulesRequest(), ?array $options = null): ?PaymentScheduleV1ListResponse
     {
         $options = array_merge($this->options, $options ?? []);
         $query = [];

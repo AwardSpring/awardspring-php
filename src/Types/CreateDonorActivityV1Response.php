@@ -51,7 +51,11 @@ class CreateDonorActivityV1Response extends JsonSerializableType
     public ?string $description;
 
     /**
-     * @var ?int $date The activity date (UTC epoch seconds on the wire).
+     * The activity date, as the institution's own wall-clock time, sent as epoch seconds.
+     * The number is not a true UTC moment: it counts the school's clock as if the school were on UTC, so an activity
+     * at 10:00 AM school time arrives as 10:00 UTC. Read it as UTC and show it as is; do not convert it to the viewer's time zone.
+     *
+     * @var ?int $date
      */
     #[JsonProperty('date')]
     public ?int $date;

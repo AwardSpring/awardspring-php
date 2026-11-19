@@ -5,6 +5,9 @@ namespace Awardspring\AwardCycles;
 use Psr\Http\Client\ClientInterface;
 use Awardspring\Core\Client\RawClient;
 use Awardspring\AwardCycles\Requests\ListAwardCyclesRequest;
+use Awardspring\Core\Pagination\Pager;
+use Awardspring\Types\AwardCycleV1;
+use Awardspring\Core\Pagination\CursorPager;
 use Awardspring\Types\AwardCycleV1ListResponse;
 use Awardspring\Exceptions\AwardspringException;
 use Awardspring\Exceptions\AwardspringApiException;
@@ -13,7 +16,6 @@ use Awardspring\Environments;
 use Awardspring\Core\Client\HttpMethod;
 use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
-use Awardspring\Types\AwardCycleV1;
 use Awardspring\Types\AvailableDollarsSummaryV1;
 
 class AwardCyclesClient
@@ -78,56 +80,20 @@ class AwardCyclesClient
      *   queryParameters?: array<string, mixed>,
      *   bodyProperties?: array<string, mixed>,
      * } $options
-     * @return ?AwardCycleV1ListResponse
-     * @throws AwardspringException
-     * @throws AwardspringApiException
+     * @return Pager<AwardCycleV1>
      */
-    public function list(ListAwardCyclesRequest $request = new ListAwardCyclesRequest(), ?array $options = null): ?AwardCycleV1ListResponse
+    public function list(ListAwardCyclesRequest $request = new ListAwardCyclesRequest(), ?array $options = null): Pager
     {
-        $options = array_merge($this->options, $options ?? []);
-        $query = [];
-        if ($request->q != null) {
-            $query['q'] = $request->q;
-        }
-        if ($request->limit != null) {
-            $query['limit'] = $request->limit;
-        }
-        if ($request->startingAfter != null) {
-            $query['starting_after'] = $request->startingAfter;
-        }
-        if ($request->endingBefore != null) {
-            $query['ending_before'] = $request->endingBefore;
-        }
-        if ($request->include != null) {
-            $query['include'] = $request->include;
-        }
-        try {
-            $response = $this->client->sendRequest(
-                new JsonApiRequest(
-                    baseUrl: $options['baseUrl'] ?? $this->client->options['baseUrl'] ?? Environments::UnitedStates->value,
-                    path: "api/v1/award-cycles",
-                    method: HttpMethod::GET,
-                    query: $query,
-                ),
-                $options,
-            );
-            $statusCode = $response->getStatusCode();
-            if ($statusCode >= 200 && $statusCode < 400) {
-                $json = $response->getBody()->getContents();
-                if (empty($json)) {
-                    return null;
-                }
-                return AwardCycleV1ListResponse::fromJson($json);
-            }
-        } catch (JsonException $e) {
-            throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);
-        } catch (ClientExceptionInterface $e) {
-            throw new AwardspringException(message: $e->getMessage(), previous: $e);
-        }
-        throw new AwardspringApiException(
-            message: 'API request failed',
-            statusCode: $statusCode,
-            body: $response->getBody()->getContents(),
+        return new CursorPager(
+            request: $request,
+            getNextPage: fn (ListAwardCyclesRequest $request) => $this->_list($request, $options),
+            setCursor: function (ListAwardCyclesRequest $request, ?string $cursor) {
+                $request->startingAfter = $cursor;
+            },
+            /* @phpstan-ignore-next-line */
+            getNextCursor: fn (?AwardCycleV1ListResponse $response) => $response?->nextCursor ?? null,
+            /* @phpstan-ignore-next-line */
+            getItems: fn (?AwardCycleV1ListResponse $response) => $response?->data ?? [],
         );
     }
 
@@ -241,6 +207,78 @@ class AwardCyclesClient
                     return null;
                 }
                 return AvailableDollarsSummaryV1::fromJson($json);
+            }
+        } catch (JsonException $e) {
+            throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);
+        } catch (ClientExceptionInterface $e) {
+            throw new AwardspringException(message: $e->getMessage(), previous: $e);
+        }
+        throw new AwardspringApiException(
+            message: 'API request failed',
+            statusCode: $statusCode,
+            body: $response->getBody()->getContents(),
+        );
+    }
+
+    /**
+     * Returns the award cycles belonging to the institution your API key is issued for, in the list
+     * envelope (`object: "list"`, `has_more`, `next_cursor`, `previous_cursor`,
+     * `data`). Page forward by passing the returned `next_cursor` as `starting_after`;
+     * the last page has `next_cursor: null`. `limit` defaults to 25 and is capped at 100.
+     * Results are ordered by award-cycle id ascending. Filter with `?q=` (case-insensitive
+     * substring match on the award-cycle name).
+     *
+     * Assistant capability: `springiq_list_award_cycles`.
+     *
+     * @param ListAwardCyclesRequest $request
+     * @param ?array{
+     *   baseUrl?: string,
+     *   maxRetries?: int,
+     *   timeout?: float,
+     *   headers?: array<string, string>,
+     *   queryParameters?: array<string, mixed>,
+     *   bodyProperties?: array<string, mixed>,
+     * } $options
+     * @return ?AwardCycleV1ListResponse
+     * @throws AwardspringException
+     * @throws AwardspringApiException
+     */
+    private function _list(ListAwardCyclesRequest $request = new ListAwardCyclesRequest(), ?array $options = null): ?AwardCycleV1ListResponse
+    {
+        $options = array_merge($this->options, $options ?? []);
+        $query = [];
+        if ($request->q != null) {
+            $query['q'] = $request->q;
+        }
+        if ($request->limit != null) {
+            $query['limit'] = $request->limit;
+        }
+        if ($request->startingAfter != null) {
+            $query['starting_after'] = $request->startingAfter;
+        }
+        if ($request->endingBefore != null) {
+            $query['ending_before'] = $request->endingBefore;
+        }
+        if ($request->include != null) {
+            $query['include'] = $request->include;
+        }
+        try {
+            $response = $this->client->sendRequest(
+                new JsonApiRequest(
+                    baseUrl: $options['baseUrl'] ?? $this->client->options['baseUrl'] ?? Environments::UnitedStates->value,
+                    path: "api/v1/award-cycles",
+                    method: HttpMethod::GET,
+                    query: $query,
+                ),
+                $options,
+            );
+            $statusCode = $response->getStatusCode();
+            if ($statusCode >= 200 && $statusCode < 400) {
+                $json = $response->getBody()->getContents();
+                if (empty($json)) {
+                    return null;
+                }
+                return AwardCycleV1ListResponse::fromJson($json);
             }
         } catch (JsonException $e) {
             throw new AwardspringException(message: "Failed to deserialize response: {$e->getMessage()}", previous: $e);
